@@ -1,0 +1,269 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Brand colours, lifted from the logo and turned up.
+       Three steps each: `soft` fills large areas, the base is the vivid brand
+       colour, `deep` is the only one dark enough to carry text. */
+    --pink: 338 92% 68%;
+    --pink-soft: 338 100% 93%;
+    --pink-deep: 336 88% 46%;
+
+    --mint: 166 78% 46%;
+    --mint-soft: 166 72% 89%;
+    --mint-deep: 170 88% 26%;
+
+    --sky: 202 95% 60%;
+    --sky-soft: 202 100% 91%;
+    --sky-deep: 208 92% 36%;
+
+    --sunny: 44 100% 57%;
+    --sunny-soft: 45 100% 87%;
+    --sunny-deep: 33 96% 33%;
+
+    --lavender: 266 85% 70%;
+    --lavender-soft: 266 100% 94%;
+    --lavender-deep: 265 72% 47%;
+
+    /* Five more hues, filling the gaps around the wheel between the original
+       five, so all 10 categories read as distinct rather than paired up. */
+    --coral: 14 88% 64%;
+    --coral-soft: 14 100% 92%;
+    --coral-deep: 10 78% 42%;
+
+    --teal: 184 72% 42%;
+    --teal-soft: 184 65% 88%;
+    --teal-deep: 186 82% 24%;
+
+    --indigo: 230 82% 68%;
+    --indigo-soft: 230 100% 93%;
+    --indigo-deep: 231 70% 46%;
+
+    --orchid: 300 70% 66%;
+    --orchid-soft: 300 80% 93%;
+    --orchid-deep: 300 60% 40%;
+
+    --moss: 95 55% 40%;
+    --moss-soft: 95 50% 88%;
+    --moss-deep: 95 65% 24%;
+
+    /* Ink — still navy, because bright colour needs something solid to sit on. */
+    --ink: 219 62% 26%;
+    --ink-soft: 219 32% 44%;
+    --ink-faint: 219 22% 60%;
+
+    /* Grounds — brighter and cleaner than before. */
+    --cream: 40 100% 99%;
+    --surface: 0 0% 100%;
+    --surface-sunk: 45 90% 96%;
+    --hairline: 220 40% 91%;
+    --shadow: 219 62% 26%;
+
+    /* Active category colour. Re-pointed at runtime as you browse. */
+    --accent: 338 92% 68%;
+    --accent-soft: 338 100% 93%;
+    --accent-ink: 336 88% 46%;
+
+    --radius: 1rem;
+  }
+
+  /* Night-feed mode — dimmed and warm, for 3am one-handed browsing.
+     Low blue light, nothing pure white, contrast still AA. */
+  [data-theme='night'] {
+    /* Still colourful, just dimmed — this mode exists for 3am, so the
+       saturation stays but the luminance drops. */
+    --pink: 338 62% 62%;
+    --pink-soft: 338 30% 26%;
+    --pink-deep: 338 80% 78%;
+
+    --mint: 166 52% 48%;
+    --mint-soft: 166 28% 22%;
+    --mint-deep: 166 65% 70%;
+
+    --sky: 202 60% 58%;
+    --sky-soft: 202 30% 24%;
+    --sky-deep: 202 75% 76%;
+
+    --sunny: 44 70% 58%;
+    --sunny-soft: 44 28% 24%;
+    --sunny-deep: 44 85% 74%;
+
+    --lavender: 266 55% 66%;
+    --lavender-soft: 266 28% 26%;
+    --lavender-deep: 266 75% 80%;
+
+    --coral: 14 60% 60%;
+    --coral-soft: 14 30% 24%;
+    --coral-deep: 14 80% 76%;
+
+    --teal: 184 50% 46%;
+    --teal-soft: 184 28% 20%;
+    --teal-deep: 184 65% 68%;
+
+    --indigo: 230 55% 62%;
+    --indigo-soft: 230 30% 26%;
+    --indigo-deep: 230 80% 80%;
+
+    --orchid: 300 45% 60%;
+    --orchid-soft: 300 28% 26%;
+    --orchid-deep: 300 70% 78%;
+
+    --moss: 95 40% 44%;
+    --moss-soft: 95 25% 20%;
+    --moss-deep: 95 55% 62%;
+
+    --ink: 34 60% 92%;
+    --ink-soft: 34 25% 75%;
+    --ink-faint: 34 15% 58%;
+
+    --cream: 222 32% 11%;
+    --surface: 222 30% 15%;
+    --surface-sunk: 222 32% 9%;
+    --hairline: 222 20% 26%;
+    --shadow: 222 60% 3%;
+
+    --accent: 338 62% 62%;
+    --accent-soft: 338 30% 26%;
+    --accent-ink: 338 80% 78%;
+  }
+
+  * {
+    @apply border-hairline;
+  }
+
+  html {
+    /* A slightly smaller base than the browser default (16px) — scales
+       every rem-based size (type, spacing, icons) down together, which
+       reads as tighter and more considered rather than shrinking type
+       alone and leaving everything else feeling oversized around it. */
+    font-size: 93.75%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display font-semibold tracking-tight text-ink;
+  }
+
+  /* Focus: always visible, always in the active category colour. */
+  :focus-visible {
+    outline: 3px solid hsl(var(--accent-ink));
+    outline-offset: 3px;
+    border-radius: 0.5rem;
+  }
+
+  ::selection {
+    background: hsl(var(--accent) / 0.4);
+    color: hsl(var(--ink));
+  }
+
+  /* Honour the OS setting — no exceptions. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* The Comfort Ring gradient — the one motif that ties the site together. */
+  .comfort-gradient {
+    background-image: linear-gradient(
+      90deg,
+      hsl(var(--pink)) 0%,
+      hsl(var(--lavender)) 25%,
+      hsl(var(--sky)) 50%,
+      hsl(var(--mint)) 75%,
+      hsl(var(--sunny)) 100%
+    );
+  }
+
+  /* Text gets its own, deeper gradient. The pastel version is beautiful as a
+     surface but fails contrast as type — especially the yellow end on cream. */
+  .comfort-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      100deg,
+      hsl(var(--pink-deep)) 0%,
+      hsl(262 48% 56%) 34%,
+      hsl(208 72% 44%) 68%,
+      hsl(168 62% 34%) 100%
+    );
+  }
+
+  [data-theme='night'] .comfort-text {
+    background-image: linear-gradient(
+      100deg,
+      hsl(339 70% 78%) 0%,
+      hsl(262 55% 80%) 34%,
+      hsl(204 65% 76%) 68%,
+      hsl(165 55% 72%) 100%
+    );
+  }
+
+  /* Rainbow bloom wash — a soft multi-stop backdrop mixing the full brand
+     palette at low opacity. Used behind sections that should read colourful
+     as a whole rather than through one active accent, so scrolling the page
+     keeps moving through the palette instead of sitting on flat cream/white
+     between the hero, the promises band and the footer. Built from CSS custom
+     properties, so it re-colours automatically in night mode. */
+  .bloom-wash {
+    background-image:
+      radial-gradient(ellipse 60% 55% at 6% -5%, hsl(var(--pink) / 0.16), transparent 60%),
+      radial-gradient(ellipse 55% 50% at 96% 8%, hsl(var(--sunny) / 0.2), transparent 62%),
+      radial-gradient(ellipse 50% 50% at 12% 102%, hsl(var(--mint) / 0.16), transparent 60%),
+      radial-gradient(ellipse 55% 55% at 100% 96%, hsl(var(--sky) / 0.16), transparent 60%),
+      radial-gradient(ellipse 45% 45% at 55% 50%, hsl(var(--lavender) / 0.1), transparent 65%);
+  }
+
+  /* Plush card: soft, layered, tactile. */
+  .plush {
+    @apply bg-surface rounded-2xl shadow-plush;
+  }
+
+  /* Pastel shimmer skeleton — never grey. */
+  .skeleton {
+    @apply relative overflow-hidden bg-surface-sunk rounded-xl;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full animate-shimmer;
+    background-image: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--accent) / 0.18),
+      transparent
+    );
+  }
+
+  /* Thin scrollbars that match the brand instead of the OS. */
+  .nice-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--accent)) transparent;
+  }
+  .nice-scroll::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .nice-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--accent));
+    border-radius: 999px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
