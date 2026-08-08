@@ -126,6 +126,11 @@ export const useUpdateCategory = () =>
       catalogService.updateCategory(id, patch),
   });
 
+export const useDeleteCategory = () =>
+  useMutation({
+    mutationFn: (id: string) => catalogService.deleteCategory(id),
+  });
+
 export const useCreateKit = () =>
   useMutation({
     mutationFn: (input: Omit<Kit, 'id'>) => catalogService.createKit(input),

@@ -48,6 +48,7 @@ export interface CatalogService {
 
   createCategory(input: Omit<Category, 'id'>): Promise<Category>;
   updateCategory(id: string, patch: Partial<Omit<Category, 'id'>>): Promise<Category>;
+  deleteCategory(id: string): Promise<void>;
 
   createKit(input: Omit<Kit, 'id'>): Promise<Kit>;
   updateKit(id: string, patch: Partial<Omit<Kit, 'id'>>): Promise<Kit>;
@@ -250,6 +251,17 @@ class MockCatalogService implements CatalogService {
     );
     if (!updated) notFound('Category', id);
     return settleWrite(updated);
+  }
+
+  deleteCategory(id: string) {
+    const category = this.store.categories.find((c) => c.id === id);
+    if (!category) notFound('Category', id);
+    const inUse = this.store.products.some((p) => p.categorySlug === category.slug);
+    if (inUse) {
+      throw new Error('This category still has products in it — move or delete those first.');
+    }
+    this.store.setCategories((categories) => categories.filter((c) => c.id !== id));
+    return settleWrite(undefined);
   }
 
   createKit(input: Omit<Kit, 'id'>) {

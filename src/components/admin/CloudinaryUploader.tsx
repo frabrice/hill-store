@@ -32,6 +32,7 @@ async function uploadToCloudinary(file: File): Promise<string> {
 interface CloudinaryUploaderProps {
   value: string[];
   onChange: (next: string[]) => void;
+  helpText?: string;
 }
 
 /**
@@ -41,7 +42,7 @@ interface CloudinaryUploaderProps {
  * URL, so `imageUrl()` can keep applying transforms (auto format/quality,
  * responsive width) the way it already does for every other product image.
  */
-export function CloudinaryUploader({ value, onChange }: CloudinaryUploaderProps) {
+export function CloudinaryUploader({ value, onChange, helpText }: CloudinaryUploaderProps) {
   const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -126,7 +127,7 @@ export function CloudinaryUploader({ value, onChange }: CloudinaryUploaderProps)
         }}
       />
       <p className="mt-2 text-xs text-ink-faint">
-        Up to {MAX_FILE_MB}MB per image. The first photo is used as the product&rsquo;s main image.
+        {helpText ?? `Up to ${MAX_FILE_MB}MB per image. The first photo is used as the product's main image.`}
       </p>
     </div>
   );

@@ -118,13 +118,13 @@ function CategoryShelfCard({
         className="group flex h-full flex-col overflow-hidden rounded-2xl border border-[hsl(var(--accent)/0.35)] bg-surface shadow-plush-sm transition-all duration-300 ease-plush hover:-translate-y-1 hover:border-[hsl(var(--accent))] hover:shadow-plush-lg"
       >
         <div className="relative h-32 overflow-hidden bg-[hsl(var(--accent-soft))] sm:h-36">
-          {image ? (
+          {category.image || image ? (
             <div className="absolute inset-0 transition-transform duration-500 ease-plush group-hover:scale-[1.06]">
               <ProductImage
-                publicId={image.images[0]}
+                publicId={category.image ?? image?.images[0]}
                 alt=""
                 colorKey={category.colorKey}
-                art={image.art}
+                art={image?.art}
                 width={320}
               />
             </div>
@@ -182,10 +182,12 @@ function CategoryShelf({
   categoryImage: Map<string, Product>;
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const loopStartRef = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
   const reduced = useReducedMotion();
   const pausedUntilRef = useRef(0);
+  const hoveredRef = useRef(false);
 
   const updateArrows = () => {
     const el = scrollerRef.current;
@@ -207,20 +209,42 @@ function CategoryShelf({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories?.length]);
 
-  // A slow, continuous drift to the right — paused by any manual
-  // interaction (hover, touch, drag, the arrow buttons) and, per
-  // accessibility guidance, never started at all if the browser's
-  // reduced-motion setting is on.
+  // A slow, continuous drift to the right — paused while the pointer is
+  // resting anywhere over the shelf (not just while it's moving — sitting
+  // still to read a card shouldn't restart the clock) or shortly after a
+  // touch/arrow interaction, and, per accessibility guidance, never started
+  // at all if the browser's reduced-motion setting is on.
+  //
+  // The category list is rendered twice back to back (see below). Once the
+  // scroll position passes the exact width of the first copy, we subtract
+  // that same width — since copy two is pixel-identical to copy one, the
+  // jump is invisible and the drift reads as one endless loop rather than a
+  // scroll-to-start snap.
+  //
+  // `snap-mandatory` (below) is what makes a manual swipe or arrow-click
+  // settle neatly on a card — but browsers apply that same snapping to any
+  // scrollLeft write, including this drift's sub-pixel steps, which pins it
+  // to the nearest snap point and cancels the animation outright. So snap
+  // is switched off for the duration of an active drift tick and restored
+  // the instant it's paused, keeping both behaviours without them fighting.
   useEffect(() => {
     if (reduced) return;
     let frame: number;
 
     const tick = () => {
       const el = scrollerRef.current;
-      if (el && performance.now() > pausedUntilRef.current) {
-        const max = el.scrollWidth - el.clientWidth;
-        if (max > 0) {
-          el.scrollLeft = el.scrollLeft >= max - 1 ? 0 : el.scrollLeft + AUTOPLAY_PX_PER_FRAME;
+      const loopStart = loopStartRef.current;
+      if (el && loopStart) {
+        const active = !hoveredRef.current && performance.now() > pausedUntilRef.current;
+        el.style.scrollSnapType = active ? 'none' : '';
+        if (active) {
+          const wrapAt = loopStart.getBoundingClientRect().left - el.getBoundingClientRect().left + el.scrollLeft;
+          if (wrapAt > 0) {
+            el.scrollLeft += AUTOPLAY_PX_PER_FRAME;
+            if (el.scrollLeft >= wrapAt) {
+              el.scrollLeft -= wrapAt;
+            }
+          }
         }
       }
       frame = requestAnimationFrame(tick);
@@ -258,21 +282,39 @@ function CategoryShelf({
 
       <div
         ref={scrollerRef}
-        onMouseEnter={pause}
-        onMouseMove={pause}
+        onMouseEnter={() => {
+          hoveredRef.current = true;
+        }}
+        onMouseLeave={() => {
+          hoveredRef.current = false;
+          pause();
+        }}
         onTouchStart={pause}
         onPointerDown={pause}
         className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-1 pt-1 sm:px-6"
       >
-        {categories?.map((category, i) => (
-          <CategoryShelfCard
-            key={category.slug}
-            category={category}
-            index={i}
-            image={categoryImage.get(category.slug)}
-          />
-        ))}
-        <div className="w-px shrink-0 sm:w-2" aria-hidden />
+        <div className="flex shrink-0 gap-4">
+          {categories?.map((category, i) => (
+            <CategoryShelfCard
+              key={`a-${category.slug}`}
+              category={category}
+              index={i}
+              image={categoryImage.get(category.slug)}
+            />
+          ))}
+        </div>
+        {categories && categories.length > 0 && (
+          <div ref={loopStartRef} className="flex shrink-0 gap-4">
+            {categories.map((category, i) => (
+              <CategoryShelfCard
+                key={`b-${category.slug}`}
+                category={category}
+                index={i}
+                image={categoryImage.get(category.slug)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {canRight && (
@@ -409,14 +451,16 @@ export function Home() {
           />
         </div>
 
-        {/* A horizontal shelf, not a grid — the row bleeds past the
-            container edge so the next card visibly peeks off-screen on the
-            right, the same "there's more, keep going" cue as browsing genre
-            shelves. Scroll-snap so it settles on a card rather than
-            stopping mid-scroll. No visible scrollbar — arrow buttons that
-            appear only when there's somewhere left to go are the control,
-            not a track to drag. */}
-        <CategoryShelf categories={categories} categoryImage={categoryImage} />
+        {/* A horizontal shelf, not a grid — kept inside the same max-w-7xl
+            frame as every other section (and the heading above it) so its
+            edges line up with the rest of the page instead of bleeding to
+            the viewport edge. Scroll-snap so it settles on a card rather
+            than stopping mid-scroll. No visible scrollbar — arrow buttons
+            that appear only when there's somewhere left to go are the
+            control, not a track to drag. */}
+        <div className="mx-auto max-w-7xl">
+          <CategoryShelf categories={categories} categoryImage={categoryImage} />
+        </div>
       </section>
 
       {/* ------------------------------------------------------ featured */}

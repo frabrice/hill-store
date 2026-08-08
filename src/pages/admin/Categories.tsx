@@ -8,8 +8,10 @@ import { Card, CardContent } from '@/components/admin/Card';
 import { Button } from '@/components/admin/Button';
 import { Drawer } from '@/components/admin/Drawer';
 import { Field, Input, Select } from '@/components/admin/Field';
-import { useCategories, useCreateCategory, useUpdateCategory } from '@/hooks/useCatalog';
+import { CloudinaryUploader } from '@/components/admin/CloudinaryUploader';
+import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCatalog';
 import { resolveIcon, ICON_KEYS } from '@/lib/icons';
+import { imageUrl } from '@/lib/services';
 import { ACCENTS, COLOR_KEYS } from '@/lib/theme';
 import type { Category } from '@/lib/services/types';
 
@@ -21,6 +23,7 @@ const categoryFormSchema = z.object({
   tagline: z.string().min(1, 'Required'),
   colorKey: z.enum(['pink', 'mint', 'sky', 'sunny', 'lavender', 'coral', 'teal', 'indigo', 'orchid', 'moss']),
   icon: z.string().min(1),
+  image: z.string().nullable(),
   sortOrder: z.coerce.number(),
   subcategories: z.array(subcategorySchema),
 });
@@ -37,6 +40,7 @@ const EMPTY_VALUES: CategoryFormValues = {
   tagline: '',
   colorKey: 'pink',
   icon: ICON_KEYS[0],
+  image: null,
   sortOrder: 1,
   subcategories: [],
 };
@@ -48,6 +52,7 @@ function toFormValues(category: Category): CategoryFormValues {
     tagline: category.tagline,
     colorKey: category.colorKey,
     icon: category.icon,
+    image: category.image ?? null,
     sortOrder: category.sortOrder,
     subcategories: category.subcategories,
   };
@@ -57,6 +62,7 @@ export function Categories() {
   const { data: categories } = useCategories();
   const createCategory = useCreateCategory();
   const updateCategory = useUpdateCategory();
+  const deleteCategory = useDeleteCategory();
 
   const [editing, setEditing] = useState<Category | 'new' | null>(null);
 
@@ -66,6 +72,7 @@ export function Categories() {
     handleSubmit,
     reset,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
@@ -96,6 +103,23 @@ export function Categories() {
     }
   };
 
+  const onDelete = async () => {
+    if (!isEditingExisting || !editing) return;
+    const confirmed = window.confirm(
+      `Delete "${editing.name}"? This can't be undone. If products still use this category, the delete will be blocked.`,
+    );
+    if (!confirmed) return;
+    try {
+      await deleteCategory.mutateAsync(editing.id);
+      toast.success('Category deleted');
+      setEditing(null);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Something went wrong — please try again.');
+    }
+  };
+
+  const image = watch('image');
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -113,16 +137,21 @@ export function Categories() {
         {categories?.map((c) => {
           const Icon = resolveIcon(c.icon);
           const accent = ACCENTS[c.colorKey];
+          const photo = imageUrl(c.image ?? undefined, { width: 160 });
           return (
             <Card key={c.id} className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => setEditing(c)}>
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
-                  <span
-                    className="grid h-10 w-10 place-items-center rounded-lg"
-                    style={{ backgroundColor: `hsl(${accent.soft})`, color: `hsl(${accent.ink})` }}
-                  >
-                    <Icon className="h-5 w-5" aria-hidden />
-                  </span>
+                  {photo ? (
+                    <img src={photo} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                  ) : (
+                    <span
+                      className="grid h-10 w-10 place-items-center rounded-lg"
+                      style={{ backgroundColor: `hsl(${accent.soft})`, color: `hsl(${accent.ink})` }}
+                    >
+                      <Icon className="h-5 w-5" aria-hidden />
+                    </span>
+                  )}
                   <span className="text-xs font-semibold text-ink-faint">#{c.sortOrder}</span>
                 </div>
                 <p className="mt-3 font-sans text-sm font-bold text-ink">{c.name}</p>
@@ -159,19 +188,23 @@ export function Categories() {
           <Field label="Tagline" error={errors.tagline?.message}>
             <Input {...register('tagline')} />
           </Field>
-          <div className="grid gap-4 sm:grid-cols-3">
+
+          {/* The icon still exists (small badges elsewhere use it) but isn't
+              admin-editable — a real photo is what actually represents the
+              category now, so that's the only image control here. */}
+          <input type="hidden" {...register('icon')} />
+          <Field label="Category photo">
+            <CloudinaryUploader
+              value={image ? [image] : []}
+              onChange={(next) => setValue('image', next[next.length - 1] ?? null)}
+              helpText="Up to 10MB. Shown wherever this category is represented with a photo — the homepage shelf and category pages."
+            />
+          </Field>
+
+          <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Colour">
               <Select {...register('colorKey')}>
                 {COLOR_KEYS.map((k) => (
-                  <option key={k} value={k}>
-                    {k}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Icon">
-              <Select {...register('icon')}>
-                {ICON_KEYS.map((k) => (
                   <option key={k} value={k}>
                     {k}
                   </option>
@@ -218,13 +251,28 @@ export function Categories() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setEditing(null)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isEditingExisting ? 'Save changes' : 'Create category'}
-            </Button>
+          <div className="flex items-center justify-between gap-3 pt-2">
+            {isEditingExisting ? (
+              <Button
+                type="button"
+                variant="danger"
+                onClick={onDelete}
+                disabled={deleteCategory.isPending}
+              >
+                <Trash2 className="h-4 w-4" aria-hidden />
+                Delete category
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" onClick={() => setEditing(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isEditingExisting ? 'Save changes' : 'Create category'}
+              </Button>
+            </div>
           </div>
         </form>
       </Drawer>

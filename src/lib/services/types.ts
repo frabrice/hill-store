@@ -34,6 +34,9 @@ export interface Category {
   colorKey: ColorKey;
   /** lucide-react icon name, resolved in the UI layer. */
   icon: string;
+  /** Cloudinary public_id of the photo representing this category, if one
+   * has been uploaded. Falls back to a product photo or the icon when null. */
+  image?: string | null;
   sortOrder: number;
   subcategories: Subcategory[];
 }

@@ -41,6 +41,7 @@ interface CategoryRow {
   tagline: string;
   color_key: string;
   icon: string;
+  image: string | null;
   sort_order: number;
   subcategories: Subcategory[];
 }
@@ -163,6 +164,7 @@ const toCategory = (r: CategoryRow): Category => ({
   tagline: r.tagline,
   colorKey: r.color_key as ColorKey,
   icon: r.icon,
+  image: r.image,
   sortOrder: r.sort_order,
   subcategories: r.subcategories,
 });
@@ -499,6 +501,7 @@ class SupabaseCatalogService implements CatalogService {
       tagline: input.tagline,
       color_key: input.colorKey,
       icon: input.icon,
+      image: input.image ?? null,
       sort_order: input.sortOrder,
       subcategories: input.subcategories,
     };
@@ -514,12 +517,25 @@ class SupabaseCatalogService implements CatalogService {
     if (patch.tagline !== undefined) row.tagline = patch.tagline;
     if (patch.colorKey !== undefined) row.color_key = patch.colorKey;
     if (patch.icon !== undefined) row.icon = patch.icon;
+    if (patch.image !== undefined) row.image = patch.image;
     if (patch.sortOrder !== undefined) row.sort_order = patch.sortOrder;
     if (patch.subcategories !== undefined) row.subcategories = patch.subcategories;
 
     const { data, error } = await supabase.from('categories').update(row).eq('id', id).select().single();
     if (error) fail('Update category', error);
     return invalidate(toCategory(data as CategoryRow));
+  }
+
+  async deleteCategory(id: string) {
+    const { error } = await supabase.from('categories').delete().eq('id', id);
+    if (error) {
+      // Postgres FK violation — products still reference this category's slug.
+      if (error.code === '23503') {
+        throw new Error('This category still has products in it — move or delete those first.');
+      }
+      fail('Delete category', error);
+    }
+    await queryClient.invalidateQueries();
   }
 
   async createKit(input: Omit<Kit, 'id'>) {
