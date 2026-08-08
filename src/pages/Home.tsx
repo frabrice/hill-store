@@ -27,14 +27,16 @@ import { ProductImage } from '@/components/shop/ProductImage';
 import type { Category, ColorKey, Product } from '@/lib/services/types';
 
 /**
- * The five hues the Ibibondo wordmark itself cycles through (see
- * `components/brand/Logo.tsx`), each at its `-deep` step so a solid letter
- * of it still clears contrast against the cream page — the same reasoning
- * `.comfort-text` uses for its gradient, just applied per-character instead
- * of blended, per the client's note that the wordmark reads as distinct
- * flat colours rather than a smooth fade.
+ * The exact colours the Ibibondo wordmark itself uses, letter by letter —
+ * see `components/brand/Logo.tsx`'s `LETTERS` array, whose distinct hues in
+ * order are pink-deep, sky, pink, lavender, mint, sunny (the wordmark
+ * repeats pink-deep and sky once more before its final sunny "o", but the
+ * six here are already every colour it uses). Deliberately the real
+ * base-strength tokens, not a darkened reinterpretation — the client's
+ * point was that this should look like the actual logo colours, not a
+ * contrast-safe approximation of them.
  */
-const LOGO_LETTER_COLORS = ['--pink-deep', '--lavender-deep', '--sky-deep', '--mint-deep', '--sunny-deep'];
+const HEADLINE_COLORS = ['--pink-deep', '--sky', '--pink', '--lavender', '--mint', '--sunny'];
 
 /** Colours every non-space character in sequence, repeating the palette
  * once it runs out — spaces pass through uncoloured and don't consume a
@@ -45,7 +47,7 @@ function ColorfulText({ text }: { text: string }) {
     <>
       {[...text].map((char, i) => {
         if (char === ' ') return <span key={i}> </span>;
-        const color = `hsl(var(${LOGO_LETTER_COLORS[turn % LOGO_LETTER_COLORS.length]}))`;
+        const color = `hsl(var(${HEADLINE_COLORS[turn % HEADLINE_COLORS.length]}))`;
         turn++;
         return (
           <span key={i} style={{ color }}>
@@ -57,10 +59,14 @@ function ColorfulText({ text }: { text: string }) {
   );
 }
 
-/** The hero's main CTA, cycling through the same wordmark palette every
- * couple of seconds instead of sitting on one static accent — an
- * attention-getting flourish reserved for the single most important button
- * on the page, not something every button gets. */
+/** The hero's main CTA, cycling through the wordmark's palette every couple
+ * of seconds instead of sitting on one static accent — an attention-getting
+ * flourish reserved for the single most important button on the page, not
+ * something every button gets. Kept to the `-deep` tokens (unlike the
+ * headline above) because every one of them is dark enough to reliably
+ * carry the same light button text — mixing in the lighter base tones would
+ * mean flipping text colour per swatch just to stay legible. */
+const BUTTON_CYCLE_COLORS = ['--pink-deep', '--lavender-deep', '--sky-deep', '--mint-deep', '--sunny-deep'];
 const RAINBOW_INTERVAL_MS = 2000;
 
 function RainbowShopButton() {
@@ -70,7 +76,7 @@ function RainbowShopButton() {
   useEffect(() => {
     if (reduced) return;
     const id = setInterval(() => {
-      setTurn((t) => (t + 1) % LOGO_LETTER_COLORS.length);
+      setTurn((t) => (t + 1) % BUTTON_CYCLE_COLORS.length);
     }, RAINBOW_INTERVAL_MS);
     return () => clearInterval(id);
   }, [reduced]);
@@ -80,7 +86,7 @@ function RainbowShopButton() {
       to="/shop"
       size="lg"
       style={{
-        ['--accent' as string]: `var(${LOGO_LETTER_COLORS[turn]})`,
+        ['--accent' as string]: `var(${BUTTON_CYCLE_COLORS[turn]})`,
         color: 'hsl(var(--cream))',
       }}
       className="transition-colors duration-700 ease-plush"
