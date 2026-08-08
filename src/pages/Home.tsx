@@ -26,6 +26,71 @@ import { cn } from '@/lib/utils';
 import { ProductImage } from '@/components/shop/ProductImage';
 import type { Category, ColorKey, Product } from '@/lib/services/types';
 
+/**
+ * The five hues the Ibibondo wordmark itself cycles through (see
+ * `components/brand/Logo.tsx`), each at its `-deep` step so a solid letter
+ * of it still clears contrast against the cream page — the same reasoning
+ * `.comfort-text` uses for its gradient, just applied per-character instead
+ * of blended, per the client's note that the wordmark reads as distinct
+ * flat colours rather than a smooth fade.
+ */
+const LOGO_LETTER_COLORS = ['--pink-deep', '--lavender-deep', '--sky-deep', '--mint-deep', '--sunny-deep'];
+
+/** Colours every non-space character in sequence, repeating the palette
+ * once it runs out — spaces pass through uncoloured and don't consume a
+ * turn, so a new word picks up the cycle exactly where the last left off. */
+function ColorfulText({ text }: { text: string }) {
+  let turn = 0;
+  return (
+    <>
+      {[...text].map((char, i) => {
+        if (char === ' ') return <span key={i}> </span>;
+        const color = `hsl(var(${LOGO_LETTER_COLORS[turn % LOGO_LETTER_COLORS.length]}))`;
+        turn++;
+        return (
+          <span key={i} style={{ color }}>
+            {char}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+/** The hero's main CTA, cycling through the same wordmark palette every
+ * couple of seconds instead of sitting on one static accent — an
+ * attention-getting flourish reserved for the single most important button
+ * on the page, not something every button gets. */
+const RAINBOW_INTERVAL_MS = 2000;
+
+function RainbowShopButton() {
+  const reduced = useReducedMotion();
+  const [turn, setTurn] = useState(0);
+
+  useEffect(() => {
+    if (reduced) return;
+    const id = setInterval(() => {
+      setTurn((t) => (t + 1) % LOGO_LETTER_COLORS.length);
+    }, RAINBOW_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [reduced]);
+
+  return (
+    <PlushButton
+      to="/shop"
+      size="lg"
+      style={{
+        ['--accent' as string]: `var(${LOGO_LETTER_COLORS[turn]})`,
+        color: 'hsl(var(--cream))',
+      }}
+      className="transition-colors duration-700 ease-plush"
+    >
+      Shop all products
+      <ArrowRight className="h-4 w-4" aria-hidden />
+    </PlushButton>
+  );
+}
+
 const PROMISES: { icon: typeof Truck; title: string; body: string; hue: ColorKey }[] = [
   { icon: Truck, title: 'Same-day in Kigali', body: 'Ordered before 2pm, delivered today.', hue: 'sky' },
   { icon: BadgeCheck, title: 'Genuine products', body: 'Sourced directly, never counterfeit.', hue: 'mint' },
@@ -383,8 +448,7 @@ export function Home() {
                 transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className="mt-5 font-display text-display-xl font-bold"
               >
-                Everything your little one needs,
-                <span className="comfort-text"> from the very first day</span>
+                <ColorfulText text="Everything your little one needs, from the very first day" />
               </motion.h1>
 
               <motion.p
@@ -404,10 +468,7 @@ export function Home() {
                 transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
                 className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
               >
-                <PlushButton to="/shop" size="lg">
-                  Shop all products
-                  <ArrowRight className="h-4 w-4" aria-hidden />
-                </PlushButton>
+                <RainbowShopButton />
                 <PlushButton to="/kits" variant="outline" size="lg">
                   Explore curated kits
                 </PlushButton>
