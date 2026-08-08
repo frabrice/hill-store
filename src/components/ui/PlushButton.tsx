@@ -58,7 +58,7 @@ export const PlushButton = forwardRef<HTMLButtonElement, PlushButtonProps>(
 
     if (to) {
       return (
-        <Link to={to} className={classes}>
+        <Link to={to} className={classes} onClick={props.onClick as never}>
           {children}
         </Link>
       );
