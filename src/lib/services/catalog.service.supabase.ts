@@ -575,6 +575,12 @@ class SupabaseCatalogService implements CatalogService {
     return invalidate(toKit(data as KitRow));
   }
 
+  async deleteKit(id: string) {
+    const { error } = await supabase.from('kits').delete().eq('id', id);
+    if (error) fail('Delete kit', error);
+    await queryClient.invalidateQueries();
+  }
+
   async createOrder(input: Omit<Order, 'id' | 'reference' | 'createdAt'>) {
     // Goes through the `create_order` RPC, not a direct table insert — see
     // supabase/migrations/0003_order_rpc.sql. That function creates the

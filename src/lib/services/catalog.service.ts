@@ -53,6 +53,7 @@ export interface CatalogService {
 
   createKit(input: Omit<Kit, 'id'>): Promise<Kit>;
   updateKit(id: string, patch: Partial<Omit<Kit, 'id'>>): Promise<Kit>;
+  deleteKit(id: string): Promise<void>;
 
   createOrder(input: Omit<Order, 'id' | 'reference' | 'createdAt'>): Promise<Order>;
   updateOrderStatus(id: string, status: OrderStatus): Promise<Order>;
@@ -287,6 +288,11 @@ class MockCatalogService implements CatalogService {
     );
     if (!updated) notFound('Kit', id);
     return settleWrite(updated);
+  }
+
+  deleteKit(id: string) {
+    this.store.setKits((kits) => kits.filter((k) => k.id !== id));
+    return settleWrite(undefined);
   }
 
   createOrder(input: Omit<Order, 'id' | 'reference' | 'createdAt'>) {

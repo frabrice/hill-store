@@ -1,17 +1,19 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createColumnHelper } from '@tanstack/react-table';
-import { Plus, Search, Star, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+import { Bike, Car, Plus, Search, Star, Sparkles, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/admin/Card';
 import { Button } from '@/components/admin/Button';
 import { Badge } from '@/components/admin/Badge';
 import { Select } from '@/components/admin/Field';
 import { DataTable } from '@/components/admin/DataTable';
-import { useCategories, useProducts } from '@/hooks/useCatalog';
+import { useCategories, useDeleteProduct, useProducts } from '@/hooks/useCatalog';
 import { useCategoryColors } from '@/hooks/useCategoryColors';
 import { ProductImage } from '@/components/shop/ProductImage';
 import { ACCENTS } from '@/lib/theme';
 import { rwfFull } from '@/lib/format';
+import { deliveryMethodFor } from '@/lib/delivery';
 import type { Product } from '@/lib/services/types';
 
 const LOW_STOCK_THRESHOLD = 8;
@@ -22,11 +24,23 @@ export function Products() {
   const { data: productsData, isLoading } = useProducts({});
   const { data: categories } = useCategories();
   const colorFor = useCategoryColors();
+  const deleteProduct = useDeleteProduct();
 
   const [search, setSearch] = useState('');
   const [categorySlug, setCategorySlug] = useState('');
 
   const products = productsData?.items ?? [];
+
+  const onDelete = async (p: Product) => {
+    const confirmed = window.confirm(`Delete "${p.name}"? This can't be undone.`);
+    if (!confirmed) return;
+    try {
+      await deleteProduct.mutateAsync(p.id);
+      toast.success('Product deleted');
+    } catch {
+      toast.error('Something went wrong — please try again.');
+    }
+  };
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -104,6 +118,22 @@ export function Products() {
         },
       }),
       columnHelper.display({
+        id: 'delivery',
+        header: 'Delivery',
+        cell: (info) => {
+          const method = deliveryMethodFor(info.row.original.dimensions);
+          return method === 'van' ? (
+            <Badge tone="warning">
+              <Car className="h-3 w-3" aria-hidden /> Car
+            </Badge>
+          ) : (
+            <Badge tone="neutral">
+              <Bike className="h-3 w-3" aria-hidden /> Motor
+            </Badge>
+          );
+        },
+      }),
+      columnHelper.display({
         id: 'flags',
         header: 'Flags',
         cell: (info) => {
@@ -123,6 +153,22 @@ export function Products() {
             </div>
           );
         },
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: '',
+        cell: (info) => (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(info.row.original);
+            }}
+            aria-label={`Delete ${info.row.original.name}`}
+            className="grid h-8 w-8 place-items-center rounded-lg text-ink-faint transition-colors hover:bg-red-50 hover:text-red-600"
+          >
+            <Trash2 className="h-4 w-4" aria-hidden />
+          </button>
+        ),
       }),
     ],
     [categories, colorFor],

@@ -147,6 +147,11 @@ export const useUpdateKit = () =>
       catalogService.updateKit(id, patch),
   });
 
+export const useDeleteKit = () =>
+  useMutation({
+    mutationFn: (id: string) => catalogService.deleteKit(id),
+  });
+
 export const useCreateOrder = () =>
   useMutation({
     mutationFn: (input: Omit<Order, 'id' | 'reference' | 'createdAt'>) =>

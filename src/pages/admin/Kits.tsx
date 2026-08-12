@@ -3,12 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/admin/Card';
 import { Button } from '@/components/admin/Button';
 import { Drawer } from '@/components/admin/Drawer';
 import { Field, Input, Select } from '@/components/admin/Field';
-import { useCreateKit, useKits, useProducts, useUpdateKit } from '@/hooks/useCatalog';
+import { useCreateKit, useDeleteKit, useKits, useProducts, useUpdateKit } from '@/hooks/useCatalog';
 import { resolveIcon, ICON_KEYS } from '@/lib/icons';
 import { ACCENTS, COLOR_KEYS } from '@/lib/theme';
 import { rwfFull } from '@/lib/format';
@@ -58,6 +58,7 @@ export function Kits() {
   const products = productsData?.items ?? [];
   const createKit = useCreateKit();
   const updateKit = useUpdateKit();
+  const deleteKit = useDeleteKit();
 
   const [editing, setEditing] = useState<Kit | 'new' | null>(null);
   const [productSearch, setProductSearch] = useState('');
@@ -108,6 +109,19 @@ export function Kits() {
         await createKit.mutateAsync(values);
         toast.success('Kit created');
       }
+      setEditing(null);
+    } catch {
+      toast.error('Something went wrong — please try again.');
+    }
+  };
+
+  const onDelete = async () => {
+    if (!isEditingExisting || !editing) return;
+    const confirmed = window.confirm(`Delete "${editing.name}"? This can't be undone.`);
+    if (!confirmed) return;
+    try {
+      await deleteKit.mutateAsync(editing.id);
+      toast.success('Kit deleted');
       setEditing(null);
     } catch {
       toast.error('Something went wrong — please try again.');
@@ -239,13 +253,23 @@ export function Kits() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setEditing(null)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isEditingExisting ? 'Save changes' : 'Create kit'}
-            </Button>
+          <div className="flex items-center justify-between gap-3 pt-2">
+            {isEditingExisting ? (
+              <Button type="button" variant="danger" onClick={onDelete} disabled={deleteKit.isPending}>
+                <Trash2 className="h-4 w-4" aria-hidden />
+                Delete kit
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" onClick={() => setEditing(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isEditingExisting ? 'Save changes' : 'Create kit'}
+              </Button>
+            </div>
           </div>
         </form>
       </Drawer>
