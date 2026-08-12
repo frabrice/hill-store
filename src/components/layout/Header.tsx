@@ -2,13 +2,17 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { Heart, Moon, Search, ShoppingBag, Sun, Truck, User } from 'lucide-react';
 import { Logo } from '@/components/brand/Logo';
-import { useCategories } from '@/hooks/useCatalog';
+import { useCategories, useSettings } from '@/hooks/useCatalog';
 import { useCart, selectCount } from '@/store/cart';
 import { useWishlist, selectWishlistCount } from '@/store/wishlist';
 import { useUI } from '@/store/ui';
 import { useAuth } from '@/lib/supabase/auth';
 import { resolveIcon } from '@/lib/icons';
+import { rwfFull } from '@/lib/format';
 import { cn } from '@/lib/utils';
+
+/** Matches the store's default until settings load — same fallback CartDrawer uses. */
+const FALLBACK_FREE_DELIVERY_THRESHOLD = 50000;
 
 const NAV = [
   { to: '/shop', label: 'Shop' },
@@ -19,11 +23,13 @@ const NAV = [
 
 export function Header() {
   const { data: categories } = useCategories();
+  const { data: settings } = useSettings();
   const count = useCart(selectCount);
   const wishlistCount = useWishlist(selectWishlistCount);
   const { theme, toggleTheme, setCartOpen, setSearchOpen, setAccent } = useUI();
   const { user } = useAuth();
   const [lifted, setLifted] = useState(false);
+  const freeDeliveryThreshold = settings?.freeDeliveryThresholdRwf ?? FALLBACK_FREE_DELIVERY_THRESHOLD;
 
   // The header gains its shadow only once you have left the top of the page.
   useEffect(() => {
@@ -51,7 +57,7 @@ export function Header() {
         <div className="comfort-gradient hidden px-4 py-1.5 text-center text-xs font-semibold text-ink sm:block">
           <span className="inline-flex items-center gap-2 drop-shadow-[0_1px_1px_hsl(var(--surface)/0.4)]">
             <Truck className="h-3.5 w-3.5" aria-hidden />
-            Same-day delivery across Kigali · Free over 50,000 RWF
+            Same-day delivery across Kigali · Free over {rwfFull(freeDeliveryThreshold)}
           </span>
         </div>
 
