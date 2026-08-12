@@ -489,6 +489,12 @@ class SupabaseCatalogService implements CatalogService {
     return invalidate(toProduct(data as ProductRow));
   }
 
+  async deleteProduct(id: string) {
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (error) fail('Delete product', error);
+    await queryClient.invalidateQueries();
+  }
+
   adjustStock(id: string, stock: number) {
     return this.updateProduct(id, { stock });
   }

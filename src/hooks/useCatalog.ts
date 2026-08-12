@@ -115,6 +115,11 @@ export const useAdjustStock = () =>
       catalogService.adjustStock(id, stock),
   });
 
+export const useDeleteProduct = () =>
+  useMutation({
+    mutationFn: (id: string) => catalogService.deleteProduct(id),
+  });
+
 export const useCreateCategory = () =>
   useMutation({
     mutationFn: (input: Omit<Category, 'id'>) => catalogService.createCategory(input),

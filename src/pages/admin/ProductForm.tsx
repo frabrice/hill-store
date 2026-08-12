@@ -9,7 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/admin/Car
 import { Button } from '@/components/admin/Button';
 import { Field, Input, Textarea, Select, Checkbox } from '@/components/admin/Field';
 import { CloudinaryUploader } from '@/components/admin/CloudinaryUploader';
-import { useCategories, useCreateProduct, useProduct, useStages, useUpdateProduct } from '@/hooks/useCatalog';
+import {
+  useCategories,
+  useCreateProduct,
+  useDeleteProduct,
+  useProduct,
+  useStages,
+  useUpdateProduct,
+} from '@/hooks/useCatalog';
 import { ART_KEYS } from '@/components/brand/ProductArt';
 import { deliveryMethodFor, deliveryMethodNote } from '@/lib/delivery';
 import type { ColorOption, Product, ProductVariant } from '@/lib/services/types';
@@ -183,6 +190,7 @@ export function ProductForm() {
   const { data: stages } = useStages();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
 
   const {
     register,
@@ -227,6 +235,19 @@ export function ProductForm() {
         await createProduct.mutateAsync(toProductInput(values));
         toast.success('Product created');
       }
+      navigate('/admin/products');
+    } catch {
+      toast.error('Something went wrong — please try again.');
+    }
+  };
+
+  const onDelete = async () => {
+    if (!isEditing || !existing) return;
+    const confirmed = window.confirm(`Delete "${existing.name}"? This can't be undone.`);
+    if (!confirmed) return;
+    try {
+      await deleteProduct.mutateAsync(existing.id);
+      toast.success('Product deleted');
       navigate('/admin/products');
     } catch {
       toast.error('Something went wrong — please try again.');
@@ -526,13 +547,23 @@ export function ProductForm() {
             </CardContent>
           </Card>
 
-          <div className="flex items-center justify-end gap-3 pb-8">
-            <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting || loadingExisting}>
-              {isEditing ? 'Save changes' : 'Create product'}
-            </Button>
+          <div className="flex items-center justify-between gap-3 pb-8">
+            {isEditing ? (
+              <Button type="button" variant="danger" onClick={onDelete} disabled={deleteProduct.isPending}>
+                <Trash2 className="h-4 w-4" aria-hidden />
+                Delete product
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || loadingExisting}>
+                {isEditing ? 'Save changes' : 'Create product'}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

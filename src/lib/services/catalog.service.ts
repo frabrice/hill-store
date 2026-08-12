@@ -44,6 +44,7 @@ export interface CatalogService {
 
   createProduct(input: Omit<Product, 'id' | 'createdAt'>): Promise<Product>;
   updateProduct(id: string, patch: Partial<Omit<Product, 'id'>>): Promise<Product>;
+  deleteProduct(id: string): Promise<void>;
   adjustStock(id: string, stock: number): Promise<Product>;
 
   createCategory(input: Omit<Category, 'id'>): Promise<Category>;
@@ -228,6 +229,11 @@ class MockCatalogService implements CatalogService {
     );
     if (!updated) notFound('Product', id);
     return settleWrite(updated);
+  }
+
+  deleteProduct(id: string) {
+    this.store.setProducts((products) => products.filter((p) => p.id !== id));
+    return settleWrite(undefined);
   }
 
   adjustStock(id: string, stock: number) {
