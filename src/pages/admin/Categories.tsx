@@ -175,9 +175,7 @@ export function Categories() {
             <Field label="Name" error={errors.name?.message}>
               <Input
                 {...register('name', {
-                  onChange: (e) => {
-                    if (!isEditingExisting) setValue('slug', slugify(e.target.value));
-                  },
+                  onChange: (e) => setValue('slug', slugify(e.target.value)),
                 })}
               />
             </Field>

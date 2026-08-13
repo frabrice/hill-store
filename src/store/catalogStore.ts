@@ -33,6 +33,7 @@ export const defaultSettings: StoreSettings = {
   twitterUrl: '',
   momoCode: '*182*8*1*37306#',
   codCommitmentFeeRwf: 15000,
+  codMinimumOrderRwf: 20000,
 };
 
 /**

@@ -24,6 +24,7 @@ const settingsFormSchema = z.object({
   freeDeliveryThresholdRwf: z.coerce.number().min(0),
   momoCode: z.string(),
   codCommitmentFeeRwf: z.coerce.number().min(0),
+  codMinimumOrderRwf: z.coerce.number().min(0),
   facebookUrl: optionalUrl,
   instagramUrl: optionalUrl,
   tiktokUrl: optionalUrl,
@@ -163,6 +164,14 @@ export function Settings() {
                 className="sm:col-span-2"
               >
                 <Input type="number" min={0} {...register('codCommitmentFeeRwf')} />
+              </Field>
+              <Field
+                label="Pay-on-delivery minimum order (RWF)"
+                error={errors.codMinimumOrderRwf?.message}
+                hint="Orders below this total can't choose pay on delivery — only MoMo, paid in full."
+                className="sm:col-span-2"
+              >
+                <Input type="number" min={0} {...register('codMinimumOrderRwf')} />
               </Field>
             </CardContent>
           </Card>

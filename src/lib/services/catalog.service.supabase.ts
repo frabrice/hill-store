@@ -137,6 +137,7 @@ interface StoreSettingsRow {
   twitter_url: string;
   momo_code: string;
   cod_commitment_fee_rwf: number;
+  cod_minimum_order_rwf: number;
 }
 
 interface OrderRow {
@@ -265,6 +266,7 @@ const toSettings = (r: StoreSettingsRow): StoreSettings => ({
   twitterUrl: r.twitter_url,
   momoCode: r.momo_code,
   codCommitmentFeeRwf: r.cod_commitment_fee_rwf,
+  codMinimumOrderRwf: r.cod_minimum_order_rwf,
 });
 
 const toOrder = (r: OrderRow): Order => ({
@@ -692,6 +694,7 @@ class SupabaseCatalogService implements CatalogService {
     if (patch.twitterUrl !== undefined) row.twitter_url = patch.twitterUrl;
     if (patch.momoCode !== undefined) row.momo_code = patch.momoCode;
     if (patch.codCommitmentFeeRwf !== undefined) row.cod_commitment_fee_rwf = patch.codCommitmentFeeRwf;
+    if (patch.codMinimumOrderRwf !== undefined) row.cod_minimum_order_rwf = patch.codMinimumOrderRwf;
 
     const { data, error } = await supabase.from('store_settings').update(row).eq('id', 1).select().single();
     if (error) fail('Update settings', error);

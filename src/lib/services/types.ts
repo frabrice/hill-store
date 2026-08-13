@@ -177,6 +177,9 @@ export interface StoreSettings {
   /** Pay-on-delivery orders require this much paid via MoMo upfront as a
    * commitment fee, deducted from the total — the rest is cash on arrival. */
   codCommitmentFeeRwf: number;
+  /** Pay-on-delivery is only offered for orders at or above this total —
+   * smaller orders must pay in full via MoMo instead. */
+  codMinimumOrderRwf: number;
 }
 
 /* ---------------------------------------------------------------- queries */

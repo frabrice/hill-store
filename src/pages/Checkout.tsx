@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,8 +35,9 @@ const PAYMENT_METHODS = [
 ] as const;
 type PaymentMethodId = (typeof PAYMENT_METHODS)[number]['id'];
 
-/** Matches the store's default until settings load. */
+/** Match the store's defaults until settings load. */
 const FALLBACK_COD_COMMITMENT_FEE = 15000;
+const FALLBACK_COD_MINIMUM_ORDER = 20000;
 
 function Stepper({ current }: { current: number }) {
   return (
@@ -105,6 +106,7 @@ export function Checkout() {
   const createOrder = useCreateOrder();
 
   const codCommitmentFee = settings?.codCommitmentFeeRwf ?? FALLBACK_COD_COMMITMENT_FEE;
+  const codMinimumOrder = settings?.codMinimumOrderRwf ?? FALLBACK_COD_MINIMUM_ORDER;
 
   const {
     register,
@@ -119,6 +121,7 @@ export function Checkout() {
   const zone = zones?.find((z) => z.id === watch('zoneId'));
   const deliveryFee = zone?.feeRwf ?? 0;
   const total = subtotal + deliveryFee;
+  const codEligible = total >= codMinimumOrder;
 
   // The amount that has to be confirmed as paid via MoMo before the order
   // can be placed — the full total for MoMo, just the commitment fee for
@@ -126,6 +129,19 @@ export function Checkout() {
   const requiredPayNowAmount = method === 'momo' ? total : codCommitmentFee;
   const codRemainingCash = Math.max(0, total - codCommitmentFee);
   const paymentConfirmed = hasConfirmedPaid && payerName.trim() !== '' && Number(paidAmount) > 0;
+
+  // If the basket changes (e.g. a delivery-zone swap) drops the order below
+  // the pay-on-delivery minimum while it's selected, fall back to MoMo
+  // rather than leaving an order stuck on an option it no longer qualifies for.
+  useEffect(() => {
+    if (method === 'pay_on_delivery' && !codEligible) {
+      setMethod('momo');
+      setHasConfirmedPaid(false);
+      setPayerName('');
+      setPaidAmount('');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [codEligible]);
 
   const onDeliverySubmit = (data: DeliveryForm) => {
     setDelivery(data);
@@ -357,10 +373,12 @@ export function Checkout() {
             <div className="space-y-2.5">
               {PAYMENT_METHODS.map(({ id, label, icon: Icon, hint }) => {
                 const active = method === id;
+                const disabled = id === 'pay_on_delivery' && !codEligible;
                 return (
                   <button
                     key={id}
                     type="button"
+                    disabled={disabled}
                     onClick={() => {
                       if (id !== method) {
                         setHasConfirmedPaid(false);
@@ -372,9 +390,11 @@ export function Checkout() {
                     aria-pressed={active}
                     className={cn(
                       'flex w-full items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-200 ease-plush',
-                      active
-                        ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.14)]'
-                        : 'border-hairline hover:border-[hsl(var(--accent)/0.5)]',
+                      disabled
+                        ? 'cursor-not-allowed border-hairline opacity-50'
+                        : active
+                          ? 'border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.14)]'
+                          : 'border-hairline hover:border-[hsl(var(--accent)/0.5)]',
                     )}
                   >
                     <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface-sunk">
@@ -382,7 +402,11 @@ export function Checkout() {
                     </span>
                     <span className="flex-1">
                       <span className="block text-sm font-semibold text-ink">{label}</span>
-                      <span className="block text-xs text-ink-faint">{hint}</span>
+                      <span className="block text-xs text-ink-faint">
+                        {disabled
+                          ? `Available for orders of ${rwfFull(codMinimumOrder)} or more — this order is ${rwfFull(total)}`
+                          : hint}
+                      </span>
                     </span>
                     <span
                       className={cn(
