@@ -54,7 +54,7 @@ function randomAddress() {
   return `${STREETS[randInt(0, STREETS.length - 1)]}, House ${randInt(1, 220)}`;
 }
 
-const PAYMENT_METHODS: PaymentMethod[] = ['momo', 'momo', 'momo', 'visa', 'mastercard'];
+const PAYMENT_METHODS: PaymentMethod[] = ['momo', 'momo', 'momo', 'pay_on_delivery', 'pay_on_delivery'];
 
 /** Status distribution skews toward "delivered" for older orders and toward
  * "pending"/"processing" for the most recent few days — mirrors a real funnel. */
@@ -100,6 +100,8 @@ function buildOrder(index: number, daysAgo: number): Order {
   const totalRwf = subtotalRwf + deliveryRwf;
   const status = statusForAge(daysAgo);
   const createdAt = dateDaysAgo(daysAgo, randInt(7, 20), randInt(0, 59));
+  const paymentMethod = pick(PAYMENT_METHODS);
+  const customerName = randomCustomerName();
 
   return {
     id: `o${index}`,
@@ -109,13 +111,16 @@ function buildOrder(index: number, daysAgo: number): Order {
     subtotalRwf,
     deliveryRwf,
     totalRwf,
-    customerName: randomCustomerName(),
+    customerName,
     customerPhone: randomPhone(),
     customerEmail: null,
     address: randomAddress(),
     deliveryZoneId: zone.id,
     deliveryZoneName: zone.name,
-    paymentMethod: pick(PAYMENT_METHODS),
+    paymentMethod,
+    // Self-reported at checkout — only ever present for momo orders.
+    payerName: paymentMethod === 'momo' ? customerName : null,
+    paidAmountRwf: paymentMethod === 'momo' ? totalRwf : null,
     createdAt,
   };
 }

@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { ArrowLeft, CreditCard, Mail, MapPin, Phone, Smartphone, User } from 'lucide-react';
+import { ArrowLeft, Banknote, CreditCard, Mail, MapPin, Phone, Smartphone, User } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/admin/Card';
 import { Select } from '@/components/admin/Field';
 import { OrderStatusBadge } from '@/components/admin/Badge';
@@ -15,6 +15,9 @@ const STATUSES: OrderStatus[] = ['pending', 'paid', 'processing', 'shipped', 'de
 
 const PAYMENT_LABEL: Record<string, { label: string; icon: typeof CreditCard }> = {
   momo: { label: 'Mobile Money', icon: Smartphone },
+  pay_on_delivery: { label: 'Pay on delivery', icon: Banknote },
+  // Historical values from before the gateway-free redesign — kept so old
+  // orders still render a sensible label instead of falling back to the raw string.
   visa: { label: 'Visa', icon: CreditCard },
   mastercard: { label: 'Mastercard', icon: CreditCard },
 };
@@ -212,6 +215,20 @@ export function OrderDetail() {
                 {payment && <payment.icon className="h-4 w-4 shrink-0 text-ink-faint" aria-hidden />}
                 {payment?.label ?? order.paymentMethod}
               </p>
+              {order.paymentMethod === 'momo' && (
+                <div className="mt-3 space-y-1 rounded-xl bg-surface-sunk p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
+                    Self-reported by customer
+                  </p>
+                  <p className="text-ink">{order.payerName ?? '—'}</p>
+                  <p className="text-ink-soft">
+                    {order.paidAmountRwf != null ? rwfFull(order.paidAmountRwf) : '—'}
+                  </p>
+                  <p className="mt-1 text-xs text-ink-faint">
+                    Cross-check against the MoMo merchant account before releasing this order.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -171,6 +171,9 @@ export interface StoreSettings {
   instagramUrl: string;
   tiktokUrl: string;
   twitterUrl: string;
+  /** USSD merchant shortcode shown at checkout for MoMo payments, e.g.
+   * "*182*8*1*37306#". No gateway is wired up — this is dialled manually. */
+  momoCode: string;
 }
 
 /* ---------------------------------------------------------------- queries */
@@ -217,7 +220,7 @@ export interface DeliveryZone {
   etaHours: string;
 }
 
-export type PaymentMethod = 'momo' | 'visa' | 'mastercard';
+export type PaymentMethod = 'momo' | 'pay_on_delivery';
 
 export interface Order {
   id: string;
@@ -238,5 +241,10 @@ export interface Order {
    * history — an order should always show the name it was placed against. */
   deliveryZoneName: string;
   paymentMethod: PaymentMethod;
+  /** Self-reported by the customer for `momo` orders, null otherwise — there
+   * is no payment gateway, so staff cross-check this against the real MoMo
+   * merchant account before releasing the order. */
+  payerName: string | null;
+  paidAmountRwf: number | null;
   createdAt: string;
 }

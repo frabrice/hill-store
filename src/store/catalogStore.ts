@@ -31,6 +31,7 @@ export const defaultSettings: StoreSettings = {
   instagramUrl: 'https://instagram.com/ibibondo',
   tiktokUrl: 'https://tiktok.com/@ibibondo',
   twitterUrl: '',
+  momoCode: '*182*8*1*37306#',
 };
 
 /**

@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion } from 'framer-motion';
-import { Check, CreditCard, PackageCheck, ShoppingBag, Smartphone, Truck } from 'lucide-react';
+import { Banknote, Check, PackageCheck, ShoppingBag, Smartphone, Truck } from 'lucide-react';
 import { toast } from 'sonner';
 import { RingDivider } from '@/components/brand/ComfortRing';
 import { PlushButton } from '@/components/ui/PlushButton';
@@ -30,9 +30,8 @@ const deliverySchema = z.object({
 type DeliveryForm = z.infer<typeof deliverySchema>;
 
 const PAYMENT_METHODS = [
-  { id: 'momo', label: 'Mobile Money', icon: Smartphone, hint: 'MTN or Airtel, pay by prompt' },
-  { id: 'visa', label: 'Visa', icon: CreditCard, hint: 'Pay by card' },
-  { id: 'mastercard', label: 'Mastercard', icon: CreditCard, hint: 'Pay by card' },
+  { id: 'momo', label: 'Mobile Money (MoMo)', icon: Smartphone, hint: 'Pay by USSD code, confirm below' },
+  { id: 'pay_on_delivery', label: 'Pay on delivery', icon: Banknote, hint: 'Cash on arrival — we call to confirm first' },
 ] as const;
 type PaymentMethodId = (typeof PAYMENT_METHODS)[number]['id'];
 
@@ -88,8 +87,16 @@ export function Checkout() {
   const [step, setStep] = useState(0);
   const [delivery, setDelivery] = useState<DeliveryForm | null>(null);
   const [method, setMethod] = useState<PaymentMethodId>('momo');
+  // MoMo is entirely self-reported — there's no gateway, so staff cross-check
+  // this against the real merchant account before releasing the order.
+  const [hasConfirmedPaid, setHasConfirmedPaid] = useState(false);
+  const [payerName, setPayerName] = useState('');
+  const [paidAmount, setPaidAmount] = useState('');
   const [reference, setReference] = useState<string | null>(null);
   const createOrder = useCreateOrder();
+
+  const momoReady =
+    method !== 'momo' || (hasConfirmedPaid && payerName.trim() !== '' && Number(paidAmount) > 0);
 
   const {
     register,
@@ -126,6 +133,8 @@ export function Checkout() {
         deliveryZoneId: delivery.zoneId,
         deliveryZoneName: zone?.name ?? '',
         paymentMethod: method,
+        payerName: method === 'momo' ? payerName.trim() : null,
+        paidAmountRwf: method === 'momo' ? Number(paidAmount) : null,
       });
       setReference(order.reference);
       clearCart();
@@ -163,8 +172,9 @@ export function Checkout() {
             {reference}
           </p>
           <p className="mt-4 max-w-sm text-sm text-ink-faint">
-            This is a demo checkout — no payment has actually been taken. Real payment
-            processing arrives once the backend is connected.
+            {method === 'momo'
+              ? `We're verifying your MoMo payment from ${payerName} — we'll confirm shortly and get your order moving.`
+              : `We'll call ${delivery?.phone} shortly to confirm your order, then you pay cash — including the ${rwfFull(deliveryFee)} delivery fee — when it arrives.`}
           </p>
           <PlushButton to="/shop" className="mt-8">
             Keep shopping
@@ -327,9 +337,6 @@ export function Checkout() {
             className="space-y-4 rounded-3xl bg-surface p-6 shadow-plush sm:p-8"
           >
             <h2 className="font-display text-xl font-bold">How would you like to pay?</h2>
-            <p className="text-xs text-ink-faint">
-              Demo checkout — selecting a method here does not move any money.
-            </p>
 
             <div className="space-y-2.5">
               {PAYMENT_METHODS.map(({ id, label, icon: Icon, hint }) => {
@@ -338,7 +345,14 @@ export function Checkout() {
                   <button
                     key={id}
                     type="button"
-                    onClick={() => setMethod(id)}
+                    onClick={() => {
+                      setMethod(id);
+                      if (id !== 'momo') {
+                        setHasConfirmedPaid(false);
+                        setPayerName('');
+                        setPaidAmount('');
+                      }
+                    }}
                     aria-pressed={active}
                     className={cn(
                       'flex w-full items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-200 ease-plush',
@@ -367,14 +381,86 @@ export function Checkout() {
               })}
             </div>
 
+            {method === 'momo' && (
+              <div className="rounded-2xl bg-sunny/20 p-4">
+                {settings?.momoCode ? (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <Smartphone className="mt-0.5 h-5 w-5 shrink-0 text-sunny-deep" aria-hidden />
+                      <p className="text-sm text-ink-soft">
+                        <span className="font-semibold text-ink">Dial this code on your phone</span> and
+                        send <span className="font-semibold text-ink">{rwfFull(total)}</span>. It&rsquo;s
+                        registered under <span className="font-semibold text-ink">Hill Store Ltd</span> —
+                        that&rsquo;s us.
+                      </p>
+                    </div>
+                    <p className="mt-3 rounded-xl bg-cream px-4 py-3 text-center font-mono text-lg font-bold tracking-wide text-ink">
+                      {settings.momoCode}
+                    </p>
+
+                    {!hasConfirmedPaid ? (
+                      <PlushButton
+                        type="button"
+                        variant="outline"
+                        className="mt-3 w-full"
+                        onClick={() => {
+                          setHasConfirmedPaid(true);
+                          setPaidAmount(String(total));
+                        }}
+                      >
+                        I&rsquo;ve completed this payment
+                      </PlushButton>
+                    ) : (
+                      <div className="mt-3 space-y-3">
+                        <label className="block">
+                          <span className="text-sm font-semibold text-ink">Your name on the payment</span>
+                          <input
+                            value={payerName}
+                            onChange={(e) => setPayerName(e.target.value)}
+                            className="mt-1.5 w-full rounded-xl border border-hairline bg-cream px-4 py-2.5 text-sm outline-none focus:border-[hsl(var(--accent))]"
+                            placeholder="Name used to send the money"
+                          />
+                        </label>
+                        <label className="block">
+                          <span className="text-sm font-semibold text-ink">Amount sent (RWF)</span>
+                          <input
+                            type="number"
+                            min={0}
+                            value={paidAmount}
+                            onChange={(e) => setPaidAmount(e.target.value)}
+                            className="mt-1.5 w-full rounded-xl border border-hairline bg-cream px-4 py-2.5 text-sm outline-none focus:border-[hsl(var(--accent))]"
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm text-ink-soft">
+                    MoMo payment isn&rsquo;t set up yet — please message us on WhatsApp to arrange
+                    payment.
+                  </p>
+                )}
+              </div>
+            )}
+
             <div className="flex gap-3">
               <PlushButton variant="outline" onClick={() => setStep(0)} className="flex-1">
                 Back
               </PlushButton>
-              <PlushButton onClick={() => setStep(2)} size="lg" className="flex-[2]">
+              <PlushButton
+                onClick={() => setStep(2)}
+                disabled={!momoReady}
+                size="lg"
+                className="flex-[2]"
+              >
                 Review order
               </PlushButton>
             </div>
+            {!momoReady && (
+              <p className="text-center text-xs text-ink-faint">
+                Confirm your MoMo payment details above to continue.
+              </p>
+            )}
           </motion.div>
         )}
 
@@ -422,6 +508,19 @@ export function Checkout() {
               <p className="text-ink-soft">
                 {delivery.address}, {zone?.name}
               </p>
+            </div>
+
+            <div className="rounded-2xl bg-surface-sunk p-4 text-sm">
+              <p className="font-semibold text-ink">Payment</p>
+              {method === 'momo' ? (
+                <p className="mt-1 text-ink-soft">
+                  MoMo — reported by {payerName}, {rwfFull(Number(paidAmount) || 0)}
+                </p>
+              ) : (
+                <p className="mt-1 text-ink-soft">
+                  Pay on delivery — cash, including the delivery fee
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5 border-t border-hairline pt-4 text-sm">

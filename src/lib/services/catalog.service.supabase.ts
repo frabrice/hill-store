@@ -135,6 +135,7 @@ interface StoreSettingsRow {
   instagram_url: string;
   tiktok_url: string;
   twitter_url: string;
+  momo_code: string;
 }
 
 interface OrderRow {
@@ -152,6 +153,8 @@ interface OrderRow {
   delivery_zone_id: string;
   delivery_zone_name: string;
   payment_method: string;
+  payer_name: string | null;
+  paid_amount_rwf: number | null;
   created_at: string;
 }
 
@@ -259,6 +262,7 @@ const toSettings = (r: StoreSettingsRow): StoreSettings => ({
   instagramUrl: r.instagram_url,
   tiktokUrl: r.tiktok_url,
   twitterUrl: r.twitter_url,
+  momoCode: r.momo_code,
 });
 
 const toOrder = (r: OrderRow): Order => ({
@@ -276,6 +280,8 @@ const toOrder = (r: OrderRow): Order => ({
   deliveryZoneId: r.delivery_zone_id,
   deliveryZoneName: r.delivery_zone_name,
   paymentMethod: r.payment_method as PaymentMethod,
+  payerName: r.payer_name,
+  paidAmountRwf: r.paid_amount_rwf,
   createdAt: r.created_at,
 });
 
@@ -600,6 +606,8 @@ class SupabaseCatalogService implements CatalogService {
       p_delivery_zone_name: input.deliveryZoneName,
       p_payment_method: input.paymentMethod,
       p_customer_email: input.customerEmail,
+      p_payer_name: input.payerName,
+      p_paid_amount_rwf: input.paidAmountRwf,
     });
     if (error || !data) fail('Create order', error);
     return invalidate(toOrder(data as OrderRow));
@@ -680,6 +688,7 @@ class SupabaseCatalogService implements CatalogService {
     if (patch.instagramUrl !== undefined) row.instagram_url = patch.instagramUrl;
     if (patch.tiktokUrl !== undefined) row.tiktok_url = patch.tiktokUrl;
     if (patch.twitterUrl !== undefined) row.twitter_url = patch.twitterUrl;
+    if (patch.momoCode !== undefined) row.momo_code = patch.momoCode;
 
     const { data, error } = await supabase.from('store_settings').update(row).eq('id', 1).select().single();
     if (error) fail('Update settings', error);

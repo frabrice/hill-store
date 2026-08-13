@@ -22,6 +22,7 @@ const settingsFormSchema = z.object({
     .min(1, 'Required')
     .regex(/^\d+$/, 'Digits only, with country code — e.g. 250788748921'),
   freeDeliveryThresholdRwf: z.coerce.number().min(0),
+  momoCode: z.string(),
   facebookUrl: optionalUrl,
   instagramUrl: optionalUrl,
   tiktokUrl: optionalUrl,
@@ -137,6 +138,21 @@ export function Settings() {
                 hint="Basket total at which delivery becomes free — shown in the cart drawer"
               >
                 <Input type="number" min={0} {...register('freeDeliveryThresholdRwf')} />
+              </Field>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Field
+                label="MoMo merchant code"
+                error={errors.momoCode?.message}
+                hint="USSD code shown at checkout for customers to dial and pay manually — registered under Hill Store Ltd. Leave blank to hide the MoMo option's code and show a fallback message instead."
+              >
+                <Input {...register('momoCode')} placeholder="*182*8*1*37306#" />
               </Field>
             </CardContent>
           </Card>

@@ -35,6 +35,10 @@ interface OrderPayload {
   address: string;
   deliveryZoneName: string;
   paymentMethod: string;
+  /** Self-reported by the customer for `momo` orders — no gateway, so staff
+   * cross-check these against the real merchant account before releasing. */
+  payerName: string | null;
+  paidAmountRwf: number | null;
   subtotalRwf: number;
   deliveryRwf: number;
   totalRwf: number;
@@ -119,11 +123,25 @@ function customerConfirmationEmail(order: OrderPayload, items: LineItem[]): { su
   return { subject: `Order confirmed — ${order.reference}`, html: shell('Your Ibibondo order is confirmed', 'Order confirmed', body) };
 }
 
+function paymentLine(order: OrderPayload): string {
+  if (order.paymentMethod === 'momo') {
+    const reported =
+      order.payerName || order.paidAmountRwf != null
+        ? ` — reported by ${order.payerName ?? 'unknown'}${order.paidAmountRwf != null ? `, ${rwf(order.paidAmountRwf)}` : ''} (self-reported, verify against the merchant account before releasing)`
+        : '';
+    return `Paid via MoMo${reported}.`;
+  }
+  if (order.paymentMethod === 'pay_on_delivery') {
+    return 'Pay on delivery — collect cash (incl. delivery fee) on arrival.';
+  }
+  return `Paid via ${order.paymentMethod}.`;
+}
+
 function adminNotificationEmail(order: OrderPayload, items: LineItem[]): { subject: string; html: string } {
   const body = `
     <p style="margin:0 0 16px;font-size:14px;color:#2E3A59;">New order from <strong>${order.customerName}</strong> (${order.customerPhone}${order.customerEmail ? `, ${order.customerEmail}` : ''}).</p>
     ${orderSummaryBlock(order, items)}
-    <p style="margin:20px 0 0;font-size:13px;color:#8a8f9c;">Delivering to ${order.address}, ${order.deliveryZoneName}. Paid via ${order.paymentMethod}.</p>`;
+    <p style="margin:20px 0 0;font-size:13px;color:#8a8f9c;">Delivering to ${order.address}, ${order.deliveryZoneName}. ${paymentLine(order)}</p>`;
   return { subject: `New order — ${order.reference}`, html: shell('New Ibibondo order', 'New order placed', body) };
 }
 

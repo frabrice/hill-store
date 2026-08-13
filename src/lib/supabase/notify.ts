@@ -33,6 +33,8 @@ export async function notifyOrderEmail(
           address: order.address,
           deliveryZoneName: order.deliveryZoneName,
           paymentMethod: order.paymentMethod,
+          payerName: order.payerName,
+          paidAmountRwf: order.paidAmountRwf,
           subtotalRwf: order.subtotalRwf,
           deliveryRwf: order.deliveryRwf,
           totalRwf: order.totalRwf,
