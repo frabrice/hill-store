@@ -174,6 +174,9 @@ export interface StoreSettings {
   /** USSD merchant shortcode shown at checkout for MoMo payments, e.g.
    * "*182*8*1*37306#". No gateway is wired up — this is dialled manually. */
   momoCode: string;
+  /** Pay-on-delivery orders require this much paid via MoMo upfront as a
+   * commitment fee, deducted from the total — the rest is cash on arrival. */
+  codCommitmentFeeRwf: number;
 }
 
 /* ---------------------------------------------------------------- queries */

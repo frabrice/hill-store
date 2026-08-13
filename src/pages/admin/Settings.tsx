@@ -23,6 +23,7 @@ const settingsFormSchema = z.object({
     .regex(/^\d+$/, 'Digits only, with country code — e.g. 250788748921'),
   freeDeliveryThresholdRwf: z.coerce.number().min(0),
   momoCode: z.string(),
+  codCommitmentFeeRwf: z.coerce.number().min(0),
   facebookUrl: optionalUrl,
   instagramUrl: optionalUrl,
   tiktokUrl: optionalUrl,
@@ -146,13 +147,22 @@ export function Settings() {
             <CardHeader>
               <CardTitle>Payment</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="grid gap-4 sm:grid-cols-2">
               <Field
                 label="MoMo merchant code"
                 error={errors.momoCode?.message}
                 hint="USSD code shown at checkout for customers to dial and pay manually — registered under Hill Store Ltd. Leave blank to hide the MoMo option's code and show a fallback message instead."
+                className="sm:col-span-2"
               >
                 <Input {...register('momoCode')} placeholder="*182*8*1*37306#" />
+              </Field>
+              <Field
+                label="Pay-on-delivery commitment fee (RWF)"
+                error={errors.codCommitmentFeeRwf?.message}
+                hint="Paid via MoMo upfront before a pay-on-delivery order is accepted — deducted from the total, the rest is cash on arrival."
+                className="sm:col-span-2"
+              >
+                <Input type="number" min={0} {...register('codCommitmentFeeRwf')} />
               </Field>
             </CardContent>
           </Card>

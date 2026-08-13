@@ -132,7 +132,13 @@ function paymentLine(order: OrderPayload): string {
     return `Paid via MoMo${reported}.`;
   }
   if (order.paymentMethod === 'pay_on_delivery') {
-    return 'Pay on delivery — collect cash (incl. delivery fee) on arrival.';
+    const reported =
+      order.payerName || order.paidAmountRwf != null
+        ? ` — commitment fee reported by ${order.payerName ?? 'unknown'}${order.paidAmountRwf != null ? `, ${rwf(order.paidAmountRwf)}` : ''} (self-reported, verify against the merchant account before releasing)`
+        : '';
+    const remaining =
+      order.paidAmountRwf != null ? Math.max(0, order.totalRwf - order.paidAmountRwf) : null;
+    return `Pay on delivery${reported}.${remaining != null ? ` Collect the remaining ${rwf(remaining)} cash on arrival.` : ''}`;
   }
   return `Paid via ${order.paymentMethod}.`;
 }

@@ -215,15 +215,23 @@ export function OrderDetail() {
                 {payment && <payment.icon className="h-4 w-4 shrink-0 text-ink-faint" aria-hidden />}
                 {payment?.label ?? order.paymentMethod}
               </p>
-              {order.paymentMethod === 'momo' && (
+              {(order.paymentMethod === 'momo' || order.paymentMethod === 'pay_on_delivery') && (
                 <div className="mt-3 space-y-1 rounded-xl bg-surface-sunk p-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-ink-faint">
-                    Self-reported by customer
+                    {order.paymentMethod === 'momo'
+                      ? 'Self-reported by customer'
+                      : 'Self-reported commitment fee'}
                   </p>
                   <p className="text-ink">{order.payerName ?? '—'}</p>
                   <p className="text-ink-soft">
                     {order.paidAmountRwf != null ? rwfFull(order.paidAmountRwf) : '—'}
                   </p>
+                  {order.paymentMethod === 'pay_on_delivery' && order.paidAmountRwf != null && (
+                    <p className="text-ink-soft">
+                      Remaining {rwfFull(Math.max(0, order.totalRwf - order.paidAmountRwf))} in cash
+                      on delivery
+                    </p>
+                  )}
                   <p className="mt-1 text-xs text-ink-faint">
                     Cross-check against the MoMo merchant account before releasing this order.
                   </p>

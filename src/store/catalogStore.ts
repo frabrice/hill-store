@@ -32,6 +32,7 @@ export const defaultSettings: StoreSettings = {
   tiktokUrl: 'https://tiktok.com/@ibibondo',
   twitterUrl: '',
   momoCode: '*182*8*1*37306#',
+  codCommitmentFeeRwf: 15000,
 };
 
 /**

@@ -31,9 +31,12 @@ type DeliveryForm = z.infer<typeof deliverySchema>;
 
 const PAYMENT_METHODS = [
   { id: 'momo', label: 'Mobile Money (MoMo)', icon: Smartphone, hint: 'Pay by USSD code, confirm below' },
-  { id: 'pay_on_delivery', label: 'Pay on delivery', icon: Banknote, hint: 'Cash on arrival — we call to confirm first' },
+  { id: 'pay_on_delivery', label: 'Pay on delivery', icon: Banknote, hint: 'A commitment fee now, cash for the rest on arrival' },
 ] as const;
 type PaymentMethodId = (typeof PAYMENT_METHODS)[number]['id'];
+
+/** Matches the store's default until settings load. */
+const FALLBACK_COD_COMMITMENT_FEE = 15000;
 
 function Stepper({ current }: { current: number }) {
   return (
@@ -87,16 +90,21 @@ export function Checkout() {
   const [step, setStep] = useState(0);
   const [delivery, setDelivery] = useState<DeliveryForm | null>(null);
   const [method, setMethod] = useState<PaymentMethodId>('momo');
-  // MoMo is entirely self-reported — there's no gateway, so staff cross-check
-  // this against the real merchant account before releasing the order.
+  // Both methods now route through MoMo for at least part of the payment —
+  // full amount for MoMo, a fixed commitment fee for pay-on-delivery — and
+  // it's entirely self-reported (no gateway), so staff cross-check this
+  // against the real merchant account before releasing the order.
   const [hasConfirmedPaid, setHasConfirmedPaid] = useState(false);
   const [payerName, setPayerName] = useState('');
   const [paidAmount, setPaidAmount] = useState('');
   const [reference, setReference] = useState<string | null>(null);
+  // Snapshot of the placed order's total — `total` itself goes stale the
+  // instant `clearCart()` runs (it's derived from live cart state), so the
+  // confirmation screen needs its own frozen copy to compute remaining cash.
+  const [placedTotalRwf, setPlacedTotalRwf] = useState<number | null>(null);
   const createOrder = useCreateOrder();
 
-  const momoReady =
-    method !== 'momo' || (hasConfirmedPaid && payerName.trim() !== '' && Number(paidAmount) > 0);
+  const codCommitmentFee = settings?.codCommitmentFeeRwf ?? FALLBACK_COD_COMMITMENT_FEE;
 
   const {
     register,
@@ -111,6 +119,13 @@ export function Checkout() {
   const zone = zones?.find((z) => z.id === watch('zoneId'));
   const deliveryFee = zone?.feeRwf ?? 0;
   const total = subtotal + deliveryFee;
+
+  // The amount that has to be confirmed as paid via MoMo before the order
+  // can be placed — the full total for MoMo, just the commitment fee for
+  // pay-on-delivery (the remainder of which is cash on arrival).
+  const requiredPayNowAmount = method === 'momo' ? total : codCommitmentFee;
+  const codRemainingCash = Math.max(0, total - codCommitmentFee);
+  const paymentConfirmed = hasConfirmedPaid && payerName.trim() !== '' && Number(paidAmount) > 0;
 
   const onDeliverySubmit = (data: DeliveryForm) => {
     setDelivery(data);
@@ -133,10 +148,11 @@ export function Checkout() {
         deliveryZoneId: delivery.zoneId,
         deliveryZoneName: zone?.name ?? '',
         paymentMethod: method,
-        payerName: method === 'momo' ? payerName.trim() : null,
-        paidAmountRwf: method === 'momo' ? Number(paidAmount) : null,
+        payerName: payerName.trim(),
+        paidAmountRwf: Number(paidAmount),
       });
       setReference(order.reference);
+      setPlacedTotalRwf(order.totalRwf);
       clearCart();
       setStep(3);
       notifyOrderEmail(
@@ -174,7 +190,7 @@ export function Checkout() {
           <p className="mt-4 max-w-sm text-sm text-ink-faint">
             {method === 'momo'
               ? `We're verifying your MoMo payment from ${payerName} — we'll confirm shortly and get your order moving.`
-              : `We'll call ${delivery?.phone} shortly to confirm your order, then you pay cash — including the ${rwfFull(deliveryFee)} delivery fee — when it arrives.`}
+              : `We're verifying your ${rwfFull(codCommitmentFee)} commitment fee from ${payerName}. We'll call ${delivery?.phone} to confirm, then you pay the remaining ${rwfFull(Math.max(0, (placedTotalRwf ?? 0) - codCommitmentFee))} in cash when it arrives.`}
           </p>
           <PlushButton to="/shop" className="mt-8">
             Keep shopping
@@ -346,12 +362,12 @@ export function Checkout() {
                     key={id}
                     type="button"
                     onClick={() => {
-                      setMethod(id);
-                      if (id !== 'momo') {
+                      if (id !== method) {
                         setHasConfirmedPaid(false);
                         setPayerName('');
                         setPaidAmount('');
                       }
+                      setMethod(id);
                     }}
                     aria-pressed={active}
                     className={cn(
@@ -381,67 +397,75 @@ export function Checkout() {
               })}
             </div>
 
-            {method === 'momo' && (
-              <div className="rounded-2xl bg-sunny/20 p-4">
-                {settings?.momoCode ? (
-                  <>
-                    <div className="flex items-start gap-3">
-                      <Smartphone className="mt-0.5 h-5 w-5 shrink-0 text-sunny-deep" aria-hidden />
-                      <p className="text-sm text-ink-soft">
-                        <span className="font-semibold text-ink">Dial this code on your phone</span> and
-                        send <span className="font-semibold text-ink">{rwfFull(total)}</span>. It&rsquo;s
-                        registered under <span className="font-semibold text-ink">Hill Store Ltd</span> —
-                        that&rsquo;s us.
-                      </p>
-                    </div>
-                    <p className="mt-3 rounded-xl bg-cream px-4 py-3 text-center font-mono text-lg font-bold tracking-wide text-ink">
-                      {settings.momoCode}
+            <div className="rounded-2xl bg-sunny/20 p-4">
+              {settings?.momoCode ? (
+                <>
+                  <div className="flex items-start gap-3">
+                    <Smartphone className="mt-0.5 h-5 w-5 shrink-0 text-sunny-deep" aria-hidden />
+                    <p className="text-sm text-ink-soft">
+                      <span className="font-semibold text-ink">Dial this code on your phone</span> and
+                      send{' '}
+                      <span className="font-semibold text-ink">{rwfFull(requiredPayNowAmount)}</span>
+                      {method === 'pay_on_delivery' && (
+                        <>
+                          {' '}
+                          — a commitment fee that confirms your order and comes off the total, so
+                          you&rsquo;ll pay the remaining{' '}
+                          <span className="font-semibold text-ink">{rwfFull(codRemainingCash)}</span>{' '}
+                          in cash on arrival instead of the full {rwfFull(total)}
+                        </>
+                      )}
+                      . It&rsquo;s registered under{' '}
+                      <span className="font-semibold text-ink">Hill Store Ltd</span> — that&rsquo;s us.
                     </p>
-
-                    {!hasConfirmedPaid ? (
-                      <PlushButton
-                        type="button"
-                        variant="outline"
-                        className="mt-3 w-full"
-                        onClick={() => {
-                          setHasConfirmedPaid(true);
-                          setPaidAmount(String(total));
-                        }}
-                      >
-                        I&rsquo;ve completed this payment
-                      </PlushButton>
-                    ) : (
-                      <div className="mt-3 space-y-3">
-                        <label className="block">
-                          <span className="text-sm font-semibold text-ink">Your name on the payment</span>
-                          <input
-                            value={payerName}
-                            onChange={(e) => setPayerName(e.target.value)}
-                            className="mt-1.5 w-full rounded-xl border border-hairline bg-cream px-4 py-2.5 text-sm outline-none focus:border-[hsl(var(--accent))]"
-                            placeholder="Name used to send the money"
-                          />
-                        </label>
-                        <label className="block">
-                          <span className="text-sm font-semibold text-ink">Amount sent (RWF)</span>
-                          <input
-                            type="number"
-                            min={0}
-                            value={paidAmount}
-                            onChange={(e) => setPaidAmount(e.target.value)}
-                            className="mt-1.5 w-full rounded-xl border border-hairline bg-cream px-4 py-2.5 text-sm outline-none focus:border-[hsl(var(--accent))]"
-                          />
-                        </label>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p className="text-sm text-ink-soft">
-                    MoMo payment isn&rsquo;t set up yet — please message us on WhatsApp to arrange
-                    payment.
+                  </div>
+                  <p className="mt-3 rounded-xl bg-cream px-4 py-3 text-center font-mono text-lg font-bold tracking-wide text-ink">
+                    {settings.momoCode}
                   </p>
-                )}
-              </div>
-            )}
+
+                  {!hasConfirmedPaid ? (
+                    <PlushButton
+                      type="button"
+                      variant="outline"
+                      className="mt-3 w-full"
+                      onClick={() => {
+                        setHasConfirmedPaid(true);
+                        setPaidAmount(String(requiredPayNowAmount));
+                      }}
+                    >
+                      I&rsquo;ve completed this payment
+                    </PlushButton>
+                  ) : (
+                    <div className="mt-3 space-y-3">
+                      <label className="block">
+                        <span className="text-sm font-semibold text-ink">Your name on the payment</span>
+                        <input
+                          value={payerName}
+                          onChange={(e) => setPayerName(e.target.value)}
+                          className="mt-1.5 w-full rounded-xl border border-hairline bg-cream px-4 py-2.5 text-sm outline-none focus:border-[hsl(var(--accent))]"
+                          placeholder="Name used to send the money"
+                        />
+                      </label>
+                      <label className="block">
+                        <span className="text-sm font-semibold text-ink">Amount sent (RWF)</span>
+                        <input
+                          type="number"
+                          min={0}
+                          value={paidAmount}
+                          onChange={(e) => setPaidAmount(e.target.value)}
+                          className="mt-1.5 w-full rounded-xl border border-hairline bg-cream px-4 py-2.5 text-sm outline-none focus:border-[hsl(var(--accent))]"
+                        />
+                      </label>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-ink-soft">
+                  MoMo payment isn&rsquo;t set up yet — please message us on WhatsApp to arrange
+                  payment.
+                </p>
+              )}
+            </div>
 
             <div className="flex gap-3">
               <PlushButton variant="outline" onClick={() => setStep(0)} className="flex-1">
@@ -449,14 +473,14 @@ export function Checkout() {
               </PlushButton>
               <PlushButton
                 onClick={() => setStep(2)}
-                disabled={!momoReady}
+                disabled={!paymentConfirmed}
                 size="lg"
                 className="flex-[2]"
               >
                 Review order
               </PlushButton>
             </div>
-            {!momoReady && (
+            {!paymentConfirmed && (
               <p className="text-center text-xs text-ink-faint">
                 Confirm your MoMo payment details above to continue.
               </p>
@@ -518,7 +542,9 @@ export function Checkout() {
                 </p>
               ) : (
                 <p className="mt-1 text-ink-soft">
-                  Pay on delivery — cash, including the delivery fee
+                  Pay on delivery — commitment fee reported by {payerName},{' '}
+                  {rwfFull(Number(paidAmount) || 0)}, remaining {rwfFull(codRemainingCash)} cash on
+                  arrival
                 </p>
               )}
             </div>
