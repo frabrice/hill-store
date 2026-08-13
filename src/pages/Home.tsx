@@ -97,6 +97,106 @@ function RainbowShopButton() {
   );
 }
 
+/**
+ * Slide 2 onward of the hero — brand/lifestyle photography paired with a
+ * theme and a CTA into a real part of the store. None of these pictures are
+ * an exact product Ibibondo stocks (confirmed with the client) — they're
+ * mood, not a SKU claim — so every CTA points somewhere genuinely real
+ * rather than a listing that doesn't exist.
+ */
+interface HeroProductSlide {
+  eyebrow: string;
+  title: string;
+  body: string;
+  image700: string;
+  image1200: string;
+  imageAlt: string;
+  hue: ColorKey;
+  ctaLabel: string;
+  ctaTo?: string;
+  onCta?: () => void;
+}
+
+const HERO_AUTOPLAY_MS = 6000;
+/** How long a manual dot click holds off the next auto-advance. */
+const HERO_AUTOPLAY_RESUME_DELAY_MS = 4000;
+/** 1 original slide + however many `HeroProductSlide`s follow it. */
+const HERO_SLIDE_COUNT = 4;
+
+function ProductSlide({ slide }: { slide: HeroProductSlide }) {
+  const accent = ACCENTS[slide.hue];
+
+  return (
+    <div
+      className="grid items-center gap-10 lg:grid-cols-2 lg:gap-8"
+      style={{
+        ['--accent' as string]: accent.surface,
+        ['--accent-ink' as string]: accent.ink,
+      }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="overflow-hidden rounded-3xl shadow-plush"
+      >
+        <img
+          src={slide.image700}
+          srcSet={`${slide.image700} 700w, ${slide.image1200} 1200w`}
+          sizes="(max-width: 1024px) 100vw, 40rem"
+          alt={slide.imageAlt}
+          className="h-full w-full object-cover"
+        />
+      </motion.div>
+
+      <div className="text-center lg:text-left">
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-eyebrow font-bold uppercase text-[hsl(var(--accent-ink))]"
+        >
+          {slide.eyebrow}
+        </motion.p>
+        <motion.h2
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-3 font-display text-display-lg font-bold"
+        >
+          {slide.title}
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+          className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg lg:mx-0"
+        >
+          {slide.body}
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-7 flex justify-center lg:justify-start"
+        >
+          {slide.ctaTo ? (
+            <PlushButton to={slide.ctaTo} size="lg">
+              {slide.ctaLabel}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </PlushButton>
+          ) : (
+            <PlushButton onClick={slide.onCta} size="lg">
+              {slide.ctaLabel}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </PlushButton>
+          )}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 const PROMISES: { icon: typeof Truck; title: string; body: string; hue: ColorKey }[] = [
   { icon: Truck, title: 'Same-day in Kigali', body: 'Ordered before 2pm, delivered today.', hue: 'sky' },
   { icon: BadgeCheck, title: 'Genuine products', body: 'Sourced directly, never counterfeit.', hue: 'mint' },
@@ -404,6 +504,70 @@ function CategoryShelf({
 export function Home() {
   const [stage, setStage] = useState<string | null>(null);
   const colorFor = useCategoryColors();
+  const heroReduced = useReducedMotion();
+
+  const [slideIndex, setSlideIndex] = useState(0);
+  const heroHoveredRef = useRef(false);
+  const heroPausedUntilRef = useRef(0);
+  const featuredRef = useRef<HTMLElement>(null);
+
+  const goToToddlerStage = () => {
+    setStage('toddler');
+    featuredRef.current?.scrollIntoView({ behavior: heroReduced ? 'auto' : 'smooth', block: 'start' });
+  };
+
+  // Same slow-drift-with-hover-pause shape as the category shelf below —
+  // advances on its own, stops the instant a visitor's pointer is on it,
+  // and never starts at all if the OS asked for reduced motion.
+  useEffect(() => {
+    if (heroReduced) return;
+    const id = setInterval(() => {
+      if (heroHoveredRef.current || performance.now() < heroPausedUntilRef.current) return;
+      setSlideIndex((i) => (i + 1) % HERO_SLIDE_COUNT);
+    }, HERO_AUTOPLAY_MS);
+    return () => clearInterval(id);
+  }, [heroReduced]);
+
+  const goToSlide = (i: number) => {
+    heroPausedUntilRef.current = performance.now() + HERO_AUTOPLAY_RESUME_DELAY_MS;
+    setSlideIndex(i);
+  };
+
+  const heroProductSlides: HeroProductSlide[] = [
+    {
+      eyebrow: 'Care essentials',
+      title: 'Everything for gentle daily care',
+      body: 'Nail care, grooming, and the tiny tools every new parent reaches for — gathered in one place, safe and simple to use from day one.',
+      image700: '/brand/slides/slide-2-700.webp',
+      image1200: '/brand/slides/slide-2-1200.webp',
+      imageAlt: 'A complete baby care kit with grooming and hygiene essentials',
+      hue: 'mint',
+      ctaLabel: 'Shop bathing & care',
+      ctaTo: '/shop/bathing',
+    },
+    {
+      eyebrow: 'As they grow',
+      title: 'Ready for every stage ahead',
+      body: 'From swaddles to first steps and beyond — Ibibondo grows with your little one, stage by stage.',
+      image700: '/brand/slides/slide-3-700.webp',
+      image1200: '/brand/slides/slide-3-1200.webp',
+      imageAlt: "A child's desk and chair set in a cosy nursery",
+      hue: 'lavender',
+      ctaLabel: 'Shop the toddler stage',
+      onCta: goToToddlerStage,
+    },
+    {
+      eyebrow: 'Play & discovery',
+      title: 'Toys that grow curious minds',
+      body: 'Bright, tactile, and built for little hands — the toys and activity pieces that turn tummy time into playtime.',
+      image700: '/brand/slides/slide-4-700.webp',
+      image1200: '/brand/slides/slide-4-1200.webp',
+      imageAlt: 'A baby walker and activity centre in a bright playroom',
+      hue: 'sunny',
+      ctaLabel: 'Shop toys & learning',
+      ctaTo: '/shop/toys',
+    },
+  ];
 
   const { data: categories } = useCategories();
   const { data: kits } = useKits();
@@ -435,60 +599,99 @@ export function Home() {
         <RingArc className="opacity-70" />
 
         <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-10 sm:px-6 sm:pt-16">
-          <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-8">
-            {/* Copy — centred on mobile, left-aligned once the picture sits beside it. */}
-            <div className="text-center lg:text-left">
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 rounded-full bg-surface/80 px-4 py-1.5 text-xs font-semibold text-ink-soft shadow-plush-sm backdrop-blur"
-              >
-                <span className="h-1.5 w-1.5 rounded-full bg-mint" aria-hidden />
-                Delivering across Kigali, seven days a week
-              </motion.p>
+          <div
+            onMouseEnter={() => {
+              heroHoveredRef.current = true;
+            }}
+            onMouseLeave={() => {
+              heroHoveredRef.current = false;
+            }}
+            onTouchStart={() => {
+              heroHoveredRef.current = true;
+            }}
+            onTouchEnd={() => {
+              heroHoveredRef.current = false;
+            }}
+          >
+            {slideIndex === 0 ? (
+              <div key="hero-slide-0" className="grid items-center gap-10 lg:grid-cols-2 lg:gap-8">
+                {/* Copy — centred on mobile, left-aligned once the picture sits beside it. */}
+                <div className="text-center lg:text-left">
+                  <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="inline-flex items-center gap-2 rounded-full bg-surface/80 px-4 py-1.5 text-xs font-semibold text-ink-soft shadow-plush-sm backdrop-blur"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-mint" aria-hidden />
+                    Delivering across Kigali, seven days a week
+                  </motion.p>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-5 font-display text-display-xl font-bold"
-              >
-                <ColorfulText text="Everything your little one needs, from the very first day" />
-              </motion.h1>
+                  <motion.h1
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+                    className="mt-5 font-display text-display-xl font-bold"
+                  >
+                    <ColorfulText text="Everything your little one needs, from the very first day" />
+                  </motion.h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
-                className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg lg:mx-0"
-              >
-                Gentle, genuine products for babies and infants — including the
-                tiny sizes and careful essentials that are hard to find anywhere
-                else in Rwanda.
-              </motion.p>
+                  <motion.p
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                    className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg lg:mx-0"
+                  >
+                    Gentle, genuine products for babies and infants — including the
+                    tiny sizes and careful essentials that are hard to find anywhere
+                    else in Rwanda.
+                  </motion.p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
-              >
-                <RainbowShopButton />
-                <PlushButton to="/kits" variant="outline" size="lg">
-                  Explore curated kits
-                </PlushButton>
-              </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 18 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                    className="mt-8 flex flex-wrap items-center justify-center gap-3 lg:justify-start"
+                  >
+                    <RainbowShopButton />
+                    <PlushButton to="/kits" variant="outline" size="lg">
+                      Explore curated kits
+                    </PlushButton>
+                  </motion.div>
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.92 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  className="px-6 sm:px-12 lg:px-0"
+                >
+                  <HeroScene />
+                </motion.div>
+              </div>
+            ) : (
+              <div key={`hero-slide-${slideIndex}`}>
+                <ProductSlide slide={heroProductSlides[slideIndex - 1]} />
+              </div>
+            )}
+
+            {/* Dots — manual navigation and a quiet progress cue, no arrows
+                needed for something that's already moving on its own. */}
+            <div className="mt-8 flex items-center justify-center gap-2">
+              {Array.from({ length: HERO_SLIDE_COUNT }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => goToSlide(i)}
+                  aria-label={`Show hero slide ${i + 1}`}
+                  aria-current={slideIndex === i}
+                  className={cn(
+                    'h-2 rounded-full transition-all duration-300 ease-plush',
+                    slideIndex === i ? 'w-6 bg-ink' : 'w-2 bg-ink/25 hover:bg-ink/40',
+                  )}
+                />
+              ))}
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-              className="px-6 sm:px-12 lg:px-0"
-            >
-              <HeroScene />
-            </motion.div>
           </div>
 
           {/* Stage selector sits in the hero: the first question a parent has
@@ -531,7 +734,7 @@ export function Home() {
       </section>
 
       {/* ------------------------------------------------------ featured */}
-      <section className="bg-surface-sunk/60 py-16">
+      <section ref={featuredRef} className="bg-surface-sunk/60 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
             eyebrow={stage ? 'Matched to your stage' : 'Chosen with care'}
