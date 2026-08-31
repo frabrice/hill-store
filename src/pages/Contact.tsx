@@ -20,7 +20,7 @@ const CARDS = [
     icon: MessageCircle,
     title: 'WhatsApp',
     body: 'Fastest way to reach us — answered seven days a week.',
-    href: 'https://wa.me/250788748921?text=Hello%20Ibibondo!%20I%20have%20a%20question.',
+    href: 'https://wa.me/250788748921?text=Hello%20Hill%20Store!%20I%20have%20a%20question.',
     label: '+250 788 748 921',
   },
   {
@@ -34,8 +34,8 @@ const CARDS = [
     icon: Mail,
     title: 'Email',
     body: 'For order references, receipts and anything in writing.',
-    href: 'mailto:hello@ibibondo.rw',
-    label: 'hello@ibibondo.rw',
+    href: 'mailto:hello@hillstore.rw',
+    label: 'hello@hillstore.rw',
   },
 ];
 

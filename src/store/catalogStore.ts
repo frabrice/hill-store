@@ -21,15 +21,15 @@ import type {
 } from '@/lib/services/types';
 
 export const defaultSettings: StoreSettings = {
-  storeName: 'Ibibondo',
+  storeName: 'Hill Store',
   tagline: 'Comfort & Care for babies in Kigali',
-  contactEmail: 'hello@ibibondo.rw',
+  contactEmail: 'hello@hillstore.rw',
   contactPhone: '+250 788 748 921',
   whatsappNumber: '250788748921',
   freeDeliveryThresholdRwf: 50000,
-  facebookUrl: 'https://facebook.com/ibibondo',
-  instagramUrl: 'https://instagram.com/ibibondo',
-  tiktokUrl: 'https://tiktok.com/@ibibondo',
+  facebookUrl: 'https://facebook.com/hillstore',
+  instagramUrl: 'https://instagram.com/hillstore',
+  tiktokUrl: 'https://tiktok.com/@hillstore',
   twitterUrl: '',
   momoCode: '*182*8*1*37306#',
   codCommitmentFeeRwf: 15000,

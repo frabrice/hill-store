@@ -1,4 +1,4 @@
-// Ibibondo — order notification emails via Resend.
+// Hill Store — order notification emails via Resend.
 //
 // Deploy: supabase functions deploy send-order-email
 // Secret:  supabase secrets set RESEND_API_KEY=...  (Dashboard → Edge Functions
@@ -10,7 +10,7 @@
 // email is a side effect, not the transaction.
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
-const FROM_ADDRESS = Deno.env.get('ORDER_EMAIL_FROM') ?? 'Ibibondo <onboarding@resend.dev>';
+const FROM_ADDRESS = Deno.env.get('ORDER_EMAIL_FROM') ?? 'Hill Store <onboarding@resend.dev>';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -86,14 +86,14 @@ function shell(preheader: string, title: string, bodyHtml: string): string {
       <tr><td>
         <table style="max-width:520px;margin:0 auto;background:#ffffff;border-radius:20px;overflow:hidden;">
           <tr><td style="background:#F2C7CE;padding:20px 28px;">
-            <span style="font-size:16px;font-weight:700;color:#2E3A59;">Ibibondo</span>
+            <span style="font-size:16px;font-weight:700;color:#2E3A59;">Hill Store</span>
           </td></tr>
           <tr><td style="padding:28px;">
             <h1 style="margin:0 0 12px;font-size:20px;color:#2E3A59;">${title}</h1>
             ${bodyHtml}
           </td></tr>
           <tr><td style="padding:20px 28px;background:#FAF7F3;text-align:center;">
-            <span style="font-size:12px;color:#8a8f9c;">Ibibondo — Comfort &amp; Care for babies in Kigali</span>
+            <span style="font-size:12px;color:#8a8f9c;">Hill Store — Comfort &amp; Care for babies in Kigali</span>
           </td></tr>
         </table>
       </td></tr>
@@ -120,7 +120,7 @@ function customerConfirmationEmail(order: OrderPayload, items: LineItem[]): { su
     <p style="margin:20px 0 0;font-size:13px;color:#8a8f9c;">
       Delivering to ${order.address}, ${order.deliveryZoneName}. We'll be in touch on ${order.customerPhone} — check the item at the door and hand it straight back to the rider if anything's not right, no need to arrange a separate return.
     </p>`;
-  return { subject: `Order confirmed — ${order.reference}`, html: shell('Your Ibibondo order is confirmed', 'Order confirmed', body) };
+  return { subject: `Order confirmed — ${order.reference}`, html: shell('Your Hill Store order is confirmed', 'Order confirmed', body) };
 }
 
 function paymentLine(order: OrderPayload): string {
@@ -148,7 +148,7 @@ function adminNotificationEmail(order: OrderPayload, items: LineItem[]): { subje
     <p style="margin:0 0 16px;font-size:14px;color:#2E3A59;">New order from <strong>${order.customerName}</strong> (${order.customerPhone}${order.customerEmail ? `, ${order.customerEmail}` : ''}).</p>
     ${orderSummaryBlock(order, items)}
     <p style="margin:20px 0 0;font-size:13px;color:#8a8f9c;">Delivering to ${order.address}, ${order.deliveryZoneName}. ${paymentLine(order)}</p>`;
-  return { subject: `New order — ${order.reference}`, html: shell('New Ibibondo order', 'New order placed', body) };
+  return { subject: `New order — ${order.reference}`, html: shell('New Hill Store order', 'New order placed', body) };
 }
 
 function statusEmail(
@@ -163,7 +163,7 @@ function statusEmail(
     },
     order_delivered: {
       title: 'Delivered!',
-      line: `Your order has been delivered. Thanks for shopping with Ibibondo, ${order.customerName.split(' ')[0]}.`,
+      line: `Your order has been delivered. Thanks for shopping with Hill Store, ${order.customerName.split(' ')[0]}.`,
     },
     order_cancelled: {
       title: 'Your order was cancelled',

@@ -22,15 +22,15 @@ import { policies } from '../src/data/policies';
 // constructs a live zustand+persist store as a side effect (touches
 // `localStorage`), which doesn't exist in this plain Node script.
 const defaultSettings = {
-  storeName: 'Ibibondo',
+  storeName: 'Hill Store',
   tagline: 'Comfort & Care for babies in Kigali',
-  contactEmail: 'hello@ibibondo.rw',
+  contactEmail: 'hello@hillstore.rw',
   contactPhone: '+250 788 748 921',
   whatsappNumber: '250788748921',
   freeDeliveryThresholdRwf: 50000,
-  facebookUrl: 'https://facebook.com/ibibondo',
-  instagramUrl: 'https://instagram.com/ibibondo',
-  tiktokUrl: 'https://tiktok.com/@ibibondo',
+  facebookUrl: 'https://facebook.com/hillstore',
+  instagramUrl: 'https://instagram.com/hillstore',
+  tiktokUrl: 'https://tiktok.com/@hillstore',
   twitterUrl: '',
 };
 
@@ -65,7 +65,7 @@ function insertBlock(table: string, columns: string[], rows: string[][]): string
 
 const out: string[] = [
   '-- ============================================================================',
-  '-- Ibibondo — seed data',
+  '-- Hill Store — seed data',
   '--',
   '-- Generated from src/data/catalog.ts, src/data/orders.ts and',
   '-- src/data/policies.ts by scripts/generate-seed-sql.ts. Run this in the SQL',

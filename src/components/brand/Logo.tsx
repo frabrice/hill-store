@@ -1,26 +1,30 @@
 import { cn } from '@/lib/utils';
 
 /**
- * The Ibibondo wordmark, rebuilt in type rather than shipped as a PNG so it
- * stays crisp at any size and re-colours with the theme.
+ * The Hill Store wordmark, rebuilt in type rather than shipped as a PNG so
+ * it stays crisp at any size and re-colours with the theme.
  *
- * Letter colours follow the supplied logo: the multi-colour rhythm is the
- * brand's most recognisable feature.
+ * Letter colours cycle through the same six brand hues the homepage
+ * headline's colour-cycle uses (`ColorfulText` in `pages/Home.tsx`) — the
+ * multi-colour rhythm is the brand's most recognisable feature, so both
+ * places draw from the identical palette. The space between the two words
+ * is skipped and doesn't consume a turn in the cycle, same technique.
  *
- * NOTE: when the client supplies the original logo asset, drop it in
- * public/brand/ and swap the badge variant to use it.
+ * NOTE: when the client supplies a designed logo asset, drop it in
+ * public/brand/ and swap this out for an <img>.
  */
 
-const LETTERS: { char: string; className: string }[] = [
-  { char: 'I', className: 'text-pink-deep' },
-  { char: 'b', className: 'text-sky' },
-  { char: 'i', className: 'text-pink' },
-  { char: 'b', className: 'text-lavender' },
-  { char: 'o', className: 'text-mint' },
-  { char: 'n', className: 'text-pink-deep' },
-  { char: 'd', className: 'text-sky' },
-  { char: 'o', className: 'text-sunny' },
-];
+const LETTER_COLORS = ['text-pink-deep', 'text-sky', 'text-pink', 'text-lavender', 'text-mint', 'text-sunny'];
+
+const LETTERS: { char: string; className: string | null }[] = (() => {
+  let turn = 0;
+  return [...'Hill Store'].map((char) => {
+    if (char === ' ') return { char, className: null };
+    const className = LETTER_COLORS[turn % LETTER_COLORS.length];
+    turn++;
+    return { char, className };
+  });
+})();
 
 interface LogoProps {
   className?: string;
@@ -43,11 +47,11 @@ export function Logo({ className, withTagline = false, size = 'md' }: LogoProps)
       <span
         className={cn('font-display font-bold', s.word)}
         // The wordmark is decorative type; give assistive tech the plain name.
-        aria-label="Ibibondo"
+        aria-label="Hill Store"
         role="img"
       >
         {LETTERS.map((l, i) => (
-          <span key={i} aria-hidden className={l.className}>
+          <span key={i} aria-hidden className={l.className ?? undefined}>
             {l.char}
           </span>
         ))}

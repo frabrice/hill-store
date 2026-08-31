@@ -38,7 +38,7 @@ const EMPTY_VALUES: ArticleFormValues = {
   body: '',
   topic: '',
   readMinutes: 3,
-  author: 'Ibibondo',
+  author: 'Hill Store',
   publishedAt: new Date().toISOString().slice(0, 10),
   colorKey: 'lavender',
 };

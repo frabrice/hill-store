@@ -69,8 +69,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-[hsl(var(--accent-ink))]" aria-hidden />
-                <a href={`mailto:${settings?.contactEmail ?? 'hello@ibibondo.rw'}`} className="hover:text-ink">
-                  {settings?.contactEmail ?? 'hello@ibibondo.rw'}
+                <a href={`mailto:${settings?.contactEmail ?? 'hello@hillstore.rw'}`} className="hover:text-ink">
+                  {settings?.contactEmail ?? 'hello@hillstore.rw'}
                 </a>
               </li>
               <li className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-hairline pt-6 text-xs text-ink-faint sm:flex-row">
-          <p>© {new Date().getFullYear()} Ibibondo. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Hill Store. All rights reserved.</p>
           <p>Made in Kigali</p>
         </div>
       </div>

@@ -46,14 +46,14 @@ export function About() {
       <section className="relative overflow-hidden border-b border-hairline bg-[hsl(var(--accent)/0.14)]">
         <div className="relative mx-auto max-w-3xl px-4 py-16 text-center sm:px-6">
           <p className="text-eyebrow font-bold uppercase text-[hsl(var(--accent-ink))]">
-            About Ibibondo
+            About Hill Store
           </p>
           <h1 className="mt-2 font-display text-display-lg font-bold">
             Everything your little one needs, from the very first day
           </h1>
           <RingDivider className="mx-auto mt-4" />
           <p className="mt-5 leading-relaxed text-ink-soft">
-            Ibibondo started with a simple frustration: a preemie bodysuit shouldn&rsquo;t be
+            Hill Store started with a simple frustration: a preemie bodysuit shouldn&rsquo;t be
             harder to find in Kigali than anything else a family needs. We built a shop
             around the sizes and essentials that get treated as an afterthought everywhere
             else — and then made sure the rest of the range was just as carefully chosen.
@@ -75,7 +75,7 @@ export function About() {
           <div>
             <h2 className="font-display text-2xl font-bold">What we promise</h2>
             <p className="mt-3 leading-relaxed text-ink-soft">
-              Every product on Ibibondo is something we&rsquo;d hand to our own family —
+              Every product on Hill Store is something we&rsquo;d hand to our own family —
               genuine, correctly sized, and delivered the way it needs to be. A bottle
               arrives by motorbike within hours; a cot arrives by van, carefully, because
               that&rsquo;s what it actually needs.

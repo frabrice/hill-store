@@ -47,7 +47,7 @@ export function Login() {
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-ink text-cream">
               <Store className="h-5 w-5" aria-hidden />
             </span>
-            <h1 className="mt-4 text-xl font-bold text-ink">Ibibondo Management</h1>
+            <h1 className="mt-4 text-xl font-bold text-ink">Hill Store Management</h1>
             <p className="mt-1 text-sm text-ink-soft">Sign in to the dashboard</p>
           </div>
 

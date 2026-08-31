@@ -27,14 +27,11 @@ import { ProductImage } from '@/components/shop/ProductImage';
 import type { Category, ColorKey, Product } from '@/lib/services/types';
 
 /**
- * The exact colours the Ibibondo wordmark itself uses, letter by letter —
- * see `components/brand/Logo.tsx`'s `LETTERS` array, whose distinct hues in
- * order are pink-deep, sky, pink, lavender, mint, sunny (the wordmark
- * repeats pink-deep and sky once more before its final sunny "o", but the
- * six here are already every colour it uses). Deliberately the real
- * base-strength tokens, not a darkened reinterpretation — the client's
- * point was that this should look like the actual logo colours, not a
- * contrast-safe approximation of them.
+ * The exact colours the Hill Store wordmark itself cycles through, letter by
+ * letter — see `components/brand/Logo.tsx`'s `LETTER_COLORS`, the same six
+ * hues in the same order. Deliberately the real base-strength tokens, not a
+ * darkened reinterpretation — the client's point was that this should look
+ * like the actual logo colours, not a contrast-safe approximation of them.
  */
 const HEADLINE_COLORS = ['--pink-deep', '--sky', '--pink', '--lavender', '--mint', '--sunny'];
 
@@ -100,7 +97,7 @@ function RainbowShopButton() {
 /**
  * Slide 2 onward of the hero — brand/lifestyle photography paired with a
  * theme and a CTA into a real part of the store. None of these pictures are
- * an exact product Ibibondo stocks (confirmed with the client) — they're
+ * an exact product Hill Store stocks (confirmed with the client) — they're
  * mood, not a SKU claim — so every CTA points somewhere genuinely real
  * rather than a listing that doesn't exist.
  */
@@ -548,7 +545,7 @@ export function Home() {
     {
       eyebrow: 'As they grow',
       title: 'Ready for every stage ahead',
-      body: 'From swaddles to first steps and beyond — Ibibondo grows with your little one, stage by stage.',
+      body: 'From swaddles to first steps and beyond — Hill Store grows with your little one, stage by stage.',
       image700: '/brand/slides/slide-3-700.webp',
       image1200: '/brand/slides/slide-3-1200.webp',
       imageAlt: "A child's desk and chair set in a cosy nursery",

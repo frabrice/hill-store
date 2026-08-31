@@ -117,7 +117,7 @@ const EMPTY_VALUES: ProductFormValues = {
   description: '',
   categorySlug: '',
   subcategorySlug: '',
-  brand: 'Ibibondo',
+  brand: 'Hill Store',
   priceRwf: 0,
   compareAtRwf: undefined,
   art: ART_KEYS[0],

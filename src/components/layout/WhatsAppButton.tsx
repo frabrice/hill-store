@@ -14,7 +14,7 @@ export function WhatsAppButton() {
   const { data: settings } = useSettings();
   const number = settings?.whatsappNumber ?? FALLBACK_WHATSAPP_NUMBER;
   const href = `https://wa.me/${number}?text=${encodeURIComponent(
-    'Hello Ibibondo! I have a question about a product.',
+    'Hello Hill Store! I have a question about a product.',
   )}`;
 
   return (

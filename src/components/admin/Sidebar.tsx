@@ -89,7 +89,7 @@ export function Sidebar({ className, collapsible = true }: SidebarProps) {
         </span>
         {!collapsed && (
           <div className="min-w-0 flex-1 leading-tight">
-            <p className="truncate font-sans text-sm font-bold text-ink">Ibibondo</p>
+            <p className="truncate font-sans text-sm font-bold text-ink">Hill Store</p>
             <p className="truncate text-[0.65rem] font-semibold uppercase tracking-wide text-ink-faint">
               Management
             </p>
