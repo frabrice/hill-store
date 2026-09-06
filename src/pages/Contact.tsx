@@ -6,6 +6,7 @@ import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { RingDivider } from '@/components/brand/ComfortRing';
 import { PlushButton } from '@/components/ui/PlushButton';
+import { useSeo } from '@/hooks/useSeo';
 import { useUI } from '@/store/ui';
 
 const contactSchema = z.object({
@@ -45,6 +46,12 @@ export function Contact() {
   useEffect(() => {
     setAccent('sky');
   }, [setAccent]);
+
+  useSeo({
+    title: 'Contact Us | Hill Store',
+    description: 'Reach Hill Store on WhatsApp, phone, or email — answered seven days a week.',
+    path: '/contact',
+  });
 
   const {
     register,

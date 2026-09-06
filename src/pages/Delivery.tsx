@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Bike, Truck } from 'lucide-react';
 import { RingDivider } from '@/components/brand/ComfortRing';
 import { useDeliveryZones } from '@/hooks/useCatalog';
+import { useSeo } from '@/hooks/useSeo';
 import { useUI } from '@/store/ui';
 import { rwfFull } from '@/lib/format';
 
@@ -13,6 +14,12 @@ export function Delivery() {
   useEffect(() => {
     setAccent('sky');
   }, [setAccent]);
+
+  useSeo({
+    title: 'Delivery & Zones | Hill Store',
+    description: 'Same-day delivery across Kigali, with fees and timing by zone — see exactly what to expect before you order.',
+    path: '/delivery',
+  });
 
   const selectedZone = zones?.find((z) => z.id === selectedZoneId);
 

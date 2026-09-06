@@ -8,6 +8,7 @@ import { PlushButton } from '@/components/ui/PlushButton';
 import { ProductImage } from '@/components/shop/ProductImage';
 import { useKits, useProductsByIds } from '@/hooks/useCatalog';
 import { useCategoryColors } from '@/hooks/useCategoryColors';
+import { useSeo } from '@/hooks/useSeo';
 import { useCart } from '@/store/cart';
 import { useUI } from '@/store/ui';
 import { resolveIcon } from '@/lib/icons';
@@ -121,6 +122,13 @@ export function Kits() {
   useEffect(() => {
     setAccent('lavender');
   }, [setAccent]);
+
+  useSeo({
+    title: 'Curated Baby Kits | Hill Store',
+    description:
+      'Ready-made baby kits from Hill Store — coming-home bags, first-bath sets and more, bundled and delivered across Kigali.',
+    path: '/kits',
+  });
 
   return (
     <>

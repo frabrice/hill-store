@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin
+Disallow: /account
+Disallow: /checkout
+Disallow: /wishlist
+
+Sitemap: https://www.hill-store.com/sitemap.xml

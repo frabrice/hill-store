@@ -7,6 +7,7 @@ import { StageSelector } from '@/components/shop/StageSelector';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { useCategories, useCategory, useProducts } from '@/hooks/useCatalog';
 import { useCategoryColors } from '@/hooks/useCategoryColors';
+import { useSeo, SITE_URL } from '@/hooks/useSeo';
 import { useUI } from '@/store/ui';
 import { resolveIcon } from '@/lib/icons';
 import { cn } from '@/lib/utils';
@@ -44,6 +45,21 @@ export function Shop() {
   const heading = category?.name ?? 'All products';
   const tagline =
     category?.tagline ?? 'Everything we stock, from preemie sizes to toddler.';
+
+  useSeo({
+    title: category ? `${category.name} | Hill Store` : 'Shop All Products | Hill Store',
+    description: category
+      ? `${category.tagline.replace(/\.?\s*$/, '.')} Shop ${category.name.toLowerCase()} at Hill Store, delivered across Kigali.`
+      : 'Shop every baby product Hill Store carries — clothing, feeding, bathing, diapering, sleep and more, delivered across Kigali.',
+    path: categorySlug ? `/shop/${categorySlug}` : '/shop',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: heading,
+      description: tagline,
+      url: `${SITE_URL}${categorySlug ? `/shop/${categorySlug}` : '/shop'}`,
+    },
+  });
 
   return (
     <>

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsx scripts/generate-sitemap.ts && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
@@ -59,6 +59,7 @@
     "sharp": "^0.35.3",
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.23.13",
     "typescript": "~6.0.2",
     "vite": "^8.1.1"
   }

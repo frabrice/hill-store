@@ -10,10 +10,12 @@ import { ProductCard } from '@/components/shop/ProductCard';
 import { WishlistButton } from '@/components/shop/WishlistButton';
 import { useCategory, useProduct, useProducts } from '@/hooks/useCatalog';
 import { useCategoryColors } from '@/hooks/useCategoryColors';
+import { useSeo, SITE_URL } from '@/hooks/useSeo';
 import { useCart } from '@/store/cart';
 import { useUI } from '@/store/ui';
 import { deliveryMethodFor, deliveryMethodNote } from '@/lib/delivery';
 import { discountPercent, rwf, rwfFull } from '@/lib/format';
+import { imageUrl } from '@/lib/services';
 import { ACCENTS } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import type { ColorKey, ColorOption, Product, ProductVariant } from '@/lib/services/types';
@@ -225,6 +227,45 @@ export function ProductDetail() {
     setSelectedColor(product?.colorOptions[0] ?? null);
     setQuantity(1);
   }, [product]);
+
+  const ogImage = product?.images[0] ? imageUrl(product.images[0], { width: 1200 }) : null;
+  useSeo({
+    title: product ? `${product.name} | Hill Store` : 'Product | Hill Store',
+    description:
+      product?.subtitle ??
+      'Gentle, genuine baby products at Hill Store, delivered across Kigali, Rwanda.',
+    image: ogImage,
+    path: product ? `/product/${product.slug}` : undefined,
+    type: 'product',
+    jsonLd: product
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          description: product.description,
+          ...(ogImage ? { image: ogImage } : {}),
+          sku: product.id,
+          brand: { '@type': 'Brand', name: product.brand },
+          offers: {
+            '@type': 'Offer',
+            priceCurrency: 'RWF',
+            price: product.priceRwf,
+            availability:
+              product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            url: `${SITE_URL}/product/${product.slug}`,
+          },
+          ...(product.reviewCount > 0
+            ? {
+                aggregateRating: {
+                  '@type': 'AggregateRating',
+                  ratingValue: product.rating,
+                  reviewCount: product.reviewCount,
+                },
+              }
+            : {}),
+        }
+      : undefined,
+  });
 
   if (isPending) {
     return (

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { RingDivider } from '@/components/brand/ComfortRing';
 import { usePolicy } from '@/hooks/useCatalog';
+import { useSeo } from '@/hooks/useSeo';
 import { useUI } from '@/store/ui';
 import { cn } from '@/lib/utils';
 
@@ -20,6 +21,12 @@ export function Policies() {
   useEffect(() => {
     setAccent('lavender');
   }, [setAccent]);
+
+  useSeo({
+    title: current ? `${current.title} | Hill Store` : 'Policies | Hill Store',
+    description: current?.body.split('\n\n')[0]?.slice(0, 160) ?? 'Hill Store policies.',
+    path: `/policies/${activeKey}`,
+  });
 
   if (isPending || !current) {
     return (

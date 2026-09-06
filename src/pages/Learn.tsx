@@ -5,6 +5,7 @@ import { BookOpen, Clock } from 'lucide-react';
 import { RingDivider } from '@/components/brand/ComfortRing';
 import { PlushButton } from '@/components/ui/PlushButton';
 import { useArticle, useArticles } from '@/hooks/useCatalog';
+import { useSeo, SITE_URL } from '@/hooks/useSeo';
 import { useUI } from '@/store/ui';
 import { formatDate } from '@/lib/format';
 import { ACCENTS } from '@/lib/theme';
@@ -59,6 +60,13 @@ function LearnList() {
     setAccent('lavender');
   }, [setAccent]);
 
+  useSeo({
+    title: 'Baby Care Guides & Articles | Hill Store',
+    description:
+      'Short, practical guides on feeding, sleep, skincare and the questions every new parent has at 2am — from Hill Store.',
+    path: '/learn',
+  });
+
   return (
     <>
       <section className="relative overflow-hidden border-b border-hairline bg-[hsl(var(--accent)/0.14)]">
@@ -92,6 +100,24 @@ function LearnArticle({ slug }: { slug: string }) {
   useEffect(() => {
     if (article) setAccent(article.colorKey);
   }, [article, setAccent]);
+
+  useSeo({
+    title: article ? `${article.title} | Hill Store` : 'Guide | Hill Store',
+    description: article?.excerpt ?? 'A baby-care guide from Hill Store.',
+    path: article ? `/learn/${article.slug}` : undefined,
+    type: 'article',
+    jsonLd: article
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: article.title,
+          description: article.excerpt,
+          datePublished: article.publishedAt,
+          author: { '@type': 'Organization', name: article.author },
+          url: `${SITE_URL}/learn/${article.slug}`,
+        }
+      : undefined,
+  });
 
   if (isPending) {
     return (

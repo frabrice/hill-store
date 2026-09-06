@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import * as Accordion from '@radix-ui/react-accordion';
 import { ChevronDown } from 'lucide-react';
 import { RingDivider } from '@/components/brand/ComfortRing';
+import { useSeo } from '@/hooks/useSeo';
 import { useUI } from '@/store/ui';
 
 const FAQS: { question: string; answer: string; topic: string }[] = [
@@ -60,6 +61,22 @@ export function Faq() {
   useEffect(() => {
     setAccent('mint');
   }, [setAccent]);
+
+  useSeo({
+    title: 'Frequently Asked Questions | Hill Store',
+    description:
+      'Delivery times, payment methods, sizing help and more — answers to the questions Hill Store customers ask most.',
+    path: '/faq',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: FAQS.map((f) => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+    },
+  });
 
   return (
     <>

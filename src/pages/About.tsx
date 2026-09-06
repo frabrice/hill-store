@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { HeartHandshake, MapPin, Ruler, Truck } from 'lucide-react';
 import { RingDivider } from '@/components/brand/ComfortRing';
 import { PlushButton } from '@/components/ui/PlushButton';
+import { useSeo } from '@/hooks/useSeo';
 import { useUI } from '@/store/ui';
 import type { ColorKey } from '@/lib/services/types';
 import { ACCENTS } from '@/lib/theme';
@@ -40,6 +41,13 @@ export function About() {
   useEffect(() => {
     setAccent('lavender');
   }, [setAccent]);
+
+  useSeo({
+    title: 'About Hill Store',
+    description:
+      'Hill Store started with a simple frustration: hard-to-find baby essentials in Kigali. Genuine products, correctly sized, delivered across Rwanda.',
+    path: '/about',
+  });
 
   return (
     <>

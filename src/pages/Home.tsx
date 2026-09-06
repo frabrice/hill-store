@@ -18,6 +18,7 @@ import { StageSelector } from '@/components/shop/StageSelector';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { useArticles, useCategories, useKits, useProducts } from '@/hooks/useCatalog';
 import { useCategoryColors } from '@/hooks/useCategoryColors';
+import { useSeo, SITE_NAME, SITE_URL } from '@/hooks/useSeo';
 import { resolveIcon } from '@/lib/icons';
 import { rwfFull } from '@/lib/format';
 import { ACCENTS } from '@/lib/theme';
@@ -588,6 +589,28 @@ export function Home() {
     }
     return map;
   }, [allProducts]);
+
+  useSeo({
+    title: 'Hill Store — Comfort & Care for babies in Kigali',
+    description:
+      'Gentle, genuine products for babies and infants, delivered across Kigali — including the tiny sizes and careful essentials that are hard to find in Rwanda.',
+    path: '/',
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: SITE_NAME,
+        url: SITE_URL,
+        logo: `${SITE_URL}/favicon-512.png`,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE_NAME,
+        url: SITE_URL,
+      },
+    ],
+  });
 
   return (
     <>
