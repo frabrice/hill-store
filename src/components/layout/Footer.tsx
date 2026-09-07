@@ -54,6 +54,9 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <Logo size="md" withTagline />
+            <p className="mt-3 max-w-xs font-display text-sm italic text-ink-soft">
+              &ldquo;What every baby needs, within every family&rsquo;s reach.&rdquo;
+            </p>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-soft">
               Carefully chosen products for babies and infants, delivered across
               Kigali — including the tiny sizes and gentle essentials that are hard
