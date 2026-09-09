@@ -653,7 +653,7 @@ export function Home() {
                     transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
                     className="mt-5 font-display text-display-xl font-bold"
                   >
-                    <ColorfulText text="Everything your little one needs, from the very first day" />
+                    <ColorfulText text="Everything your home needs within every family’s reach" />
                   </motion.h1>
 
                   <motion.p
