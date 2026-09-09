@@ -1,16 +1,11 @@
-import { useRef, useState } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { Star, Truck } from 'lucide-react';
-import { ProductArt } from './ProductArt';
-import { rwfFull } from '@/lib/format';
+import { useState } from 'react';
 
 /**
  * The hero picture.
  *
- * An illustrated baby rather than stock photography — it matches the logo's
- * own character (which the client already chose), it cannot go out of date or
- * clash with the palette, and it carries no licensing question. When the
- * client shoots real photography this is the one component to swap.
+ * Falls back to an illustrated baby if the client's photo/badge asset ever
+ * fails to load — it matches the logo's own character, cannot go out of
+ * date or clash with the palette, and carries no licensing question.
  *
  * Skin and hair follow the logo's baby deliberately: the customers are
  * Rwandan families and the illustration should look like them.
@@ -100,61 +95,14 @@ function Baby() {
   );
 }
 
-/** A floating card, gently drifting. */
-function Floater({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const reduced = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      animate={reduced ? undefined : { y: [0, -10, 0] }}
-      transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut', delay }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 export function HeroScene() {
   const [failed, setFailed] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-
-  // A gentle drift as the hero scrolls past — the one signature parallax
-  // moment on the page, everything else stays calm.
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start end', 'end start'],
-  });
-  const blobY = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [-22, 22]);
-  const blobScale = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [1, 1.06]);
 
   return (
-    <div ref={containerRef} className="relative mx-auto aspect-square w-full max-w-lg">
-      {/* Blob ground in the brand gradient — the baby is a cutout, so it sits
-          in front of this rather than being cropped into it. Opacities are
-          turned up and both blobs carry three brand hues each so the hero
-          reads as the fullest expression of the palette on the page. */}
-      <motion.div
-        className="absolute inset-2 bg-gradient-to-br from-pink/70 via-lavender/60 to-sky/65"
-        style={{ borderRadius: '46% 54% 52% 48% / 50% 46% 54% 50%', y: blobY, scale: blobScale }}
-      />
-      {/* A second, offset blob adds depth and brings in the two hues the
-          front blob doesn't carry. */}
-      <motion.div
-        className="absolute inset-6 bg-gradient-to-tr from-sunny/45 via-mint/40 to-lavender/30"
-        style={{ borderRadius: '54% 46% 48% 52% / 46% 52% 48% 54%', y: blobY }}
-      />
-
-      {/* The client's own photograph. Falls back to the illustration if it
-          ever fails to load, so the hero is never an empty box. */}
+    <div className="relative mx-auto aspect-square w-full max-w-lg">
+      {/* The client's brand badge, shown exactly as supplied — no background,
+          shadow or overlays added. Falls back to the illustration if it ever
+          fails to load, so the hero is never an empty box. */}
       {failed ? (
         <Baby />
       ) : (
@@ -162,51 +110,13 @@ export function HeroScene() {
           src="/brand/hero-baby-700.webp"
           srcSet="/brand/hero-baby-700.webp 700w, /brand/hero-baby-1100.webp 1100w"
           sizes="(max-width: 1024px) 80vw, 32rem"
-          width={1023}
-          height={1024}
-          alt="A smiling baby sitting in a white bodysuit"
+          width={1100}
+          height={1100}
+          alt="Hill Store — dining items and baby essentials, everything for a happier home"
           onError={() => setFailed(true)}
-          // Slightly oversized and pushed down so the baby breaks out of the
-          // blob rather than floating politely inside it.
-          className="absolute inset-x-0 bottom-0 mx-auto h-[104%] w-auto max-w-none object-contain drop-shadow-[0_18px_30px_hsl(var(--shadow)/0.22)]"
+          className="mx-auto h-full w-full object-contain"
         />
       )}
-
-      {/* Floating proof points — the reassurance a first-time buyer wants. */}
-      <Floater className="absolute left-0 top-[16%]" delay={0.4}>
-        <div className="flex items-center gap-2 rounded-2xl bg-surface px-3 py-2 shadow-plush-lg">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-mint/30">
-            <Truck className="h-4 w-4 text-ink" aria-hidden />
-          </span>
-          <span className="text-xs font-bold leading-tight text-ink">
-            Same-day
-            <span className="block font-medium text-ink-soft">in Kigali</span>
-          </span>
-        </div>
-      </Floater>
-
-      <Floater className="absolute right-0 top-[6%]" delay={1.4}>
-        <div className="flex items-center gap-1.5 rounded-2xl bg-surface px-3 py-2 shadow-plush-lg">
-          <Star className="h-4 w-4 fill-sunny text-sunny" aria-hidden />
-          <span className="text-xs font-bold text-ink">4.9</span>
-          <span className="text-xs text-ink-soft">· 300+ parents</span>
-        </div>
-      </Floater>
-
-      {/* A real product card, so the hero shows what the shop actually sells. */}
-      <Floater className="absolute -bottom-2 right-0 w-40" delay={0.9}>
-        <div className="rounded-2xl bg-surface p-2.5 shadow-plush-lg">
-          <div className="h-20 overflow-hidden rounded-xl bg-gradient-to-br from-mint/40 to-sky/30">
-            <ProductArt art="bottle" colorKey="mint" className="h-full w-full" />
-          </div>
-          <p className="mt-2 text-[0.7rem] font-bold leading-tight text-ink">
-            Preemie Slow-Flow Bottle
-          </p>
-          <p className="text-[0.7rem] font-semibold text-ink-soft">
-            {rwfFull(12500)}
-          </p>
-        </div>
-      </Floater>
     </div>
   );
 }

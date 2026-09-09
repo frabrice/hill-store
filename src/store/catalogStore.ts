@@ -23,7 +23,7 @@ import type {
 export const defaultSettings: StoreSettings = {
   storeName: 'Hill Store',
   tagline: 'Comfort & Care for babies in Kigali',
-  contactEmail: 'hello@hillstore.rw',
+  contactEmail: 'hillstorerwanda@gmail.com',
   contactPhone: '+250 788 748 921',
   whatsappNumber: '250788748921',
   freeDeliveryThresholdRwf: 50000,
