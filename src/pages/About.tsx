@@ -45,7 +45,7 @@ export function About() {
   useSeo({
     title: 'About Hill Store',
     description:
-      'Hill Store started with a simple frustration: hard-to-find baby essentials in Kigali. Genuine products, correctly sized, delivered across Rwanda.',
+      'Hill Store started with a mother who simply wanted to shop safely and conveniently. Today we bring kitchen, dining, cleaning, bedroom and baby essentials to families across Kigali.',
     path: '/about',
   });
 
@@ -57,39 +57,42 @@ export function About() {
             About Hill Store
           </p>
           <h1 className="mt-2 font-display text-display-lg font-bold">
-            Everything your little one needs, from the very first day
+            Everything your home needs within every family&rsquo;s reach
           </h1>
           <RingDivider className="mx-auto mt-4" />
-          <p className="mt-5 leading-relaxed text-ink-soft">
-            Hill Store started with a simple frustration: a preemie bodysuit shouldn&rsquo;t be
-            harder to find in Kigali than anything else a family needs. We built a shop
-            around the sizes and essentials that get treated as an afterthought everywhere
-            else — and then made sure the rest of the range was just as carefully chosen.
-          </p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
-        <div className="grid gap-8 sm:grid-cols-2">
-          <div>
-            <h2 className="font-display text-2xl font-bold">Why we started here</h2>
-            <p className="mt-3 leading-relaxed text-ink-soft">
-              A baby born early or small needs clothes, feeding equipment and care products
-              sized for them — not a newborn outfit that swamps them until the day it
-              suddenly doesn&rsquo;t. Families told us they were improvising, altering, or
-              importing to solve this. We decided to stock the answer instead.
-            </p>
-          </div>
-          <div>
-            <h2 className="font-display text-2xl font-bold">What we promise</h2>
-            <p className="mt-3 leading-relaxed text-ink-soft">
-              Every product on Hill Store is something we&rsquo;d hand to our own family —
-              genuine, correctly sized, and delivered the way it needs to be. A bottle
-              arrives by motorbike within hours; a cot arrives by van, carefully, because
-              that&rsquo;s what it actually needs.
-            </p>
-          </div>
+      <section className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+        <h2 className="font-display text-2xl font-bold">Our Story — Born from a Mother&rsquo;s Need</h2>
+        <div className="mt-4 space-y-4 leading-relaxed text-ink-soft">
+          <p>Hillstore started with a mother who simply wanted to shop safely and conveniently.</p>
+          <p>
+            While expecting her baby, she found it difficult to visit crowded markets and busy
+            shopping areas. She worried about being accidentally hit by people carrying heavy
+            items on their heads, and navigating crowded places became uncomfortable and
+            stressful during pregnancy.
+          </p>
+          <p>
+            That experience inspired a simple idea: what if families could access the things
+            they need without having to struggle through crowded markets?
+          </p>
+          <p>
+            From that personal experience, Hillstore was born — with a mission to bring
+            essential products closer to families through convenient shopping.
+          </p>
+          <p>
+            Today, Hillstore brings together kitchen and dining items, cleaning and household
+            products, bedroom essentials, and baby products, making everyday shopping easier
+            and more accessible.
+          </p>
         </div>
+
+        <h2 className="mt-10 font-display text-2xl font-bold">Our belief</h2>
+        <p className="mt-4 leading-relaxed text-ink-soft">
+          Every family deserves access to the essentials they need — safely, conveniently, and
+          within reach.
+        </p>
       </section>
 
       <section className="bg-surface-sunk/60 py-14">

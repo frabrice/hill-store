@@ -9,11 +9,11 @@ const COLUMNS = [
     title: 'Shop',
     links: [
       { to: '/shop', label: 'All products' },
-      { to: '/shop/feeding', label: 'Feeding' },
-      { to: '/shop/sleep', label: 'Sleep & Nursery' },
-      { to: '/shop/clothing', label: 'Clothing' },
-      { to: '/shop/diapering', label: 'Diapering' },
-      { to: '/kits', label: 'Curated kits' },
+      { to: '/shop/kitchen-ware', label: 'Kitchenwares' },
+      { to: '/shop/dining-items', label: 'Dinning items' },
+      { to: '/shop/cleaning-supplies', label: 'Cleaning supplies' },
+      { to: '/shop/bedroom-comfort', label: 'Bedroom and comfort products' },
+      { to: '/shop/baby-essentials', label: 'Baby Essentials' },
     ],
   },
   {
@@ -54,13 +54,12 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <Logo size="md" withTagline />
-            <p className="mt-3 max-w-xs font-display text-sm italic text-ink-soft">
-              &ldquo;What every baby needs, within every family&rsquo;s reach.&rdquo;
+            <p className="mt-3 max-w-xs font-display text-sm font-bold italic text-ink-soft">
+              Everything Your Home Needs, Within Every Family&rsquo;s Reach
             </p>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-ink-soft">
-              Carefully chosen products for babies and infants, delivered across
-              Kigali — including the tiny sizes and gentle essentials that are hard
-              to find elsewhere.
+              From kitchen to nursery, from cleaning to everyday living —
+              quality essentials made accessible to every family.
             </p>
 
             <ul className="mt-6 space-y-2 text-sm text-ink-soft">
