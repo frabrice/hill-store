@@ -60,6 +60,7 @@ export interface CatalogService {
 
   createArticle(input: Omit<Article, 'id'>): Promise<Article>;
   updateArticle(id: string, patch: Partial<Omit<Article, 'id'>>): Promise<Article>;
+  deleteArticle(id: string): Promise<void>;
 
   updateDeliveryZone(
     id: string,
@@ -358,6 +359,11 @@ class MockCatalogService implements CatalogService {
     );
     if (!updated) notFound('Article', id);
     return settleWrite(updated);
+  }
+
+  deleteArticle(id: string) {
+    this.store.setArticles((articles) => articles.filter((a) => a.id !== id));
+    return settleWrite(undefined);
   }
 
   updateDeliveryZone(id: string, patch: Partial<Omit<DeliveryZone, 'id'>>) {

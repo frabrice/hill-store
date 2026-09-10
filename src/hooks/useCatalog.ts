@@ -181,6 +181,11 @@ export const useUpdateArticle = () =>
       catalogService.updateArticle(id, patch),
   });
 
+export const useDeleteArticle = () =>
+  useMutation({
+    mutationFn: (id: string) => catalogService.deleteArticle(id),
+  });
+
 export const useUpdatePolicy = () =>
   useMutation({
     mutationFn: ({ key, patch }: { key: string; patch: Partial<Omit<Policy, 'key'>> }) =>

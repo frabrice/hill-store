@@ -3,12 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { Clock, Plus } from 'lucide-react';
+import { Clock, Plus, Trash2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/admin/Card';
 import { Button } from '@/components/admin/Button';
 import { Drawer } from '@/components/admin/Drawer';
 import { Field, Input, Select, Textarea } from '@/components/admin/Field';
-import { useArticles, useCreateArticle, useUpdateArticle } from '@/hooks/useCatalog';
+import { useArticles, useCreateArticle, useUpdateArticle, useDeleteArticle } from '@/hooks/useCatalog';
 import { ACCENTS, COLOR_KEYS } from '@/lib/theme';
 import { formatDate } from '@/lib/format';
 import type { Article } from '@/lib/services/types';
@@ -61,6 +61,7 @@ export function Articles() {
   const { data: articles } = useArticles();
   const createArticle = useCreateArticle();
   const updateArticle = useUpdateArticle();
+  const deleteArticle = useDeleteArticle();
 
   const [editing, setEditing] = useState<Article | 'new' | null>(null);
 
@@ -91,6 +92,19 @@ export function Articles() {
         await createArticle.mutateAsync(values);
         toast.success('Article created');
       }
+      setEditing(null);
+    } catch {
+      toast.error('Something went wrong — please try again.');
+    }
+  };
+
+  const onDelete = async () => {
+    if (!isEditingExisting || !editing) return;
+    const confirmed = window.confirm(`Delete "${editing.title}"? This can't be undone.`);
+    if (!confirmed) return;
+    try {
+      await deleteArticle.mutateAsync(editing.id);
+      toast.success('Article deleted');
       setEditing(null);
     } catch {
       toast.error('Something went wrong — please try again.');
@@ -188,13 +202,23 @@ export function Articles() {
             </Field>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <Button type="button" variant="outline" onClick={() => setEditing(null)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isEditingExisting ? 'Save changes' : 'Create article'}
-            </Button>
+          <div className="flex items-center justify-between gap-3 pt-2">
+            {isEditingExisting ? (
+              <Button type="button" variant="danger" onClick={onDelete} disabled={deleteArticle.isPending}>
+                <Trash2 className="h-4 w-4" aria-hidden />
+                Delete article
+              </Button>
+            ) : (
+              <span />
+            )}
+            <div className="flex items-center gap-3">
+              <Button type="button" variant="outline" onClick={() => setEditing(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isEditingExisting ? 'Save changes' : 'Create article'}
+              </Button>
+            </div>
           </div>
         </form>
       </Drawer>

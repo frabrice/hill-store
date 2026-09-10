@@ -658,6 +658,12 @@ class SupabaseCatalogService implements CatalogService {
     return invalidate(toArticle(data as ArticleRow));
   }
 
+  async deleteArticle(id: string) {
+    const { error } = await supabase.from('articles').delete().eq('id', id);
+    if (error) fail('Delete article', error);
+    await queryClient.invalidateQueries();
+  }
+
   async updateDeliveryZone(id: string, patch: Partial<Omit<DeliveryZone, 'id'>>) {
     const row: Record<string, unknown> = {};
     if (patch.name !== undefined) row.name = patch.name;
