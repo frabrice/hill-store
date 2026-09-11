@@ -115,9 +115,9 @@ interface HeroProductSlide {
   onCta?: () => void;
 }
 
-const HERO_AUTOPLAY_MS = 6000;
+const HERO_AUTOPLAY_MS = 3500;
 /** How long a manual dot click holds off the next auto-advance. */
-const HERO_AUTOPLAY_RESUME_DELAY_MS = 4000;
+const HERO_AUTOPLAY_RESUME_DELAY_MS = 2500;
 /** 1 original slide + however many `HeroProductSlide`s follow it. */
 const HERO_SLIDE_COUNT = 7;
 
