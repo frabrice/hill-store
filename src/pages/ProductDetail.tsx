@@ -233,7 +233,7 @@ export function ProductDetail() {
     title: product ? `${product.name} | Hill Store` : 'Product | Hill Store',
     description:
       product?.subtitle ??
-      'Gentle, genuine baby products at Hill Store, delivered across Kigali, Rwanda.',
+      'Genuine, quality products at Hill Store, delivered across Kigali, Rwanda.',
     image: ogImage,
     path: product ? `/product/${product.slug}` : undefined,
     type: 'product',

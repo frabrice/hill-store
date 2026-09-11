@@ -13,7 +13,6 @@ import {
 import { RingArc, RingDivider } from '@/components/brand/ComfortRing';
 import { HeroScene } from '@/components/brand/HeroScene';
 import { PlushButton } from '@/components/ui/PlushButton';
-import { StageSelector } from '@/components/shop/StageSelector';
 import { ProductCard } from '@/components/shop/ProductCard';
 import { useCategories, useKits, useProducts } from '@/hooks/useCatalog';
 import { useCategoryColors } from '@/hooks/useCategoryColors';
@@ -24,36 +23,6 @@ import { ACCENTS } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { ProductImage } from '@/components/shop/ProductImage';
 import type { Category, ColorKey, Product } from '@/lib/services/types';
-
-/**
- * The exact colours the Hill Store wordmark itself cycles through, letter by
- * letter — see `components/brand/Logo.tsx`'s `LETTER_COLORS`, the same six
- * hues in the same order. Deliberately the real base-strength tokens, not a
- * darkened reinterpretation — the client's point was that this should look
- * like the actual logo colours, not a contrast-safe approximation of them.
- */
-const HEADLINE_COLORS = ['--pink-deep', '--sky', '--pink', '--lavender', '--mint', '--sunny'];
-
-/** Colours every non-space character in sequence, repeating the palette
- * once it runs out — spaces pass through uncoloured and don't consume a
- * turn, so a new word picks up the cycle exactly where the last left off. */
-function ColorfulText({ text }: { text: string }) {
-  let turn = 0;
-  return (
-    <>
-      {[...text].map((char, i) => {
-        if (char === ' ') return <span key={i}> </span>;
-        const color = `hsl(var(${HEADLINE_COLORS[turn % HEADLINE_COLORS.length]}))`;
-        turn++;
-        return (
-          <span key={i} style={{ color }}>
-            {char}
-          </span>
-        );
-      })}
-    </>
-  );
-}
 
 /** The hero's main CTA, cycling through the wordmark's palette every couple
  * of seconds instead of sitting on one static accent — an attention-getting
@@ -499,7 +468,6 @@ function CategoryShelf({
 }
 
 export function Home() {
-  const [stage, setStage] = useState<string | null>(null);
   const colorFor = useCategoryColors();
   const heroReduced = useReducedMotion();
 
@@ -580,7 +548,6 @@ export function Home() {
   const { data: categories } = useCategories();
   const { data: kits } = useKits();
   const { data: featured } = useProducts({
-    stageSlug: stage ?? undefined,
     sort: 'featured',
     limit: 8,
   });
@@ -600,9 +567,9 @@ export function Home() {
   }, [allProducts]);
 
   useSeo({
-    title: 'Hill Store — Comfort & Care for babies in Kigali',
+    title: 'Hill Store Rwanda — Everything Your Home Needs',
     description:
-      'Gentle, genuine products for babies and infants, delivered across Kigali — including the tiny sizes and careful essentials that are hard to find in Rwanda.',
+      'Kitchenware, cleaning supplies, bedroom comfort and baby essentials — quality products delivered across Kigali, within every family’s reach.',
     path: '/',
     jsonLd: [
       {
@@ -665,9 +632,9 @@ export function Home() {
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-                    className="mt-5 font-display text-display-xl font-bold"
+                    className="mt-5 font-display text-display-xl font-bold text-[#0076ba]"
                   >
-                    <ColorfulText text="Everything your home needs within every family’s reach" />
+                    Everything your home needs within every family’s reach
                   </motion.h1>
 
                   <motion.p
@@ -676,9 +643,9 @@ export function Home() {
                     transition={{ duration: 0.6, delay: 0.16, ease: [0.22, 1, 0.36, 1] }}
                     className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-ink-soft sm:text-lg lg:mx-0"
                   >
-                    Gentle, genuine products for babies and infants — including the
-                    tiny sizes and careful essentials that are hard to find anywhere
-                    else in Rwanda.
+                    Kitchenware, cleaning supplies, bedroom comfort and baby
+                    essentials — genuine products delivered across Kigali, chosen
+                    with the same care for every part of your home.
                   </motion.p>
 
                   <motion.div
@@ -695,10 +662,10 @@ export function Home() {
                 </div>
 
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.92 }}
+                  initial={{ opacity: 0, scale: 0.96 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="px-6 sm:px-12 lg:px-0"
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden rounded-3xl shadow-plush"
                 >
                   <HeroScene />
                 </motion.div>
@@ -728,19 +695,6 @@ export function Home() {
             </div>
           </div>
 
-          {/* Stage selector sits in the hero: the first question a parent has
-              is "what fits my baby right now?" */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto mt-12 max-w-3xl rounded-3xl bg-surface/80 p-5 shadow-plush backdrop-blur-xl"
-          >
-            <p className="mb-3 text-center text-sm font-semibold text-ink-soft">
-              Shop by your baby&rsquo;s stage
-            </p>
-            <StageSelector value={stage} onChange={setStage} />
-          </motion.div>
         </div>
       </section>
 
@@ -771,15 +725,15 @@ export function Home() {
       <section ref={featuredRef} className="bg-surface-sunk/60 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <SectionHeading
-            eyebrow={stage ? 'Matched to your stage' : 'Chosen with care'}
-            title="Loved by Kigali parents"
+            eyebrow="Chosen with care"
+            title="Loved by Kigali families"
             action={{ to: '/shop', label: 'Shop all' }}
             hue="sunny"
           />
 
           {featured?.items.length === 0 ? (
             <p className="rounded-3xl bg-surface p-10 text-center text-ink-soft shadow-plush">
-              Nothing in this stage yet — try another.
+              Nothing featured yet — check back soon.
             </p>
           ) : (
             <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

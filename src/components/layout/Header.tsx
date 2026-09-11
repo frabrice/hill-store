@@ -68,7 +68,7 @@ export function Header() {
         >
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:h-16 sm:px-6">
           <Link to="/" className="shrink-0" aria-label="Hill Store — home">
-            <Logo size="sm" />
+            <Logo size="sm" className="text-[#137335]" />
           </Link>
 
           <nav className="ml-4 hidden items-center gap-1 lg:flex">

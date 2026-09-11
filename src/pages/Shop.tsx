@@ -44,13 +44,13 @@ export function Shop() {
 
   const heading = category?.name ?? 'All products';
   const tagline =
-    category?.tagline ?? 'Everything we stock, from preemie sizes to toddler.';
+    category?.tagline ?? 'Quality essentials for every part of your home, delivered across Kigali.';
 
   useSeo({
     title: category ? `${category.name} | Hill Store` : 'Shop All Products | Hill Store',
     description: category
       ? `${category.tagline.replace(/\.?\s*$/, '.')} Shop ${category.name.toLowerCase()} at Hill Store, delivered across Kigali.`
-      : 'Shop every baby product Hill Store carries — clothing, feeding, bathing, diapering, sleep and more, delivered across Kigali.',
+      : 'Shop every product Hill Store carries — kitchenware, cleaning, bedroom comfort, baby essentials and more, delivered across Kigali.',
     path: categorySlug ? `/shop/${categorySlug}` : '/shop',
     jsonLd: {
       '@context': 'https://schema.org',
@@ -95,7 +95,7 @@ export function Shop() {
             {heading}
           </h1>
           <RingDivider className="mt-3" />
-          <p className="mt-3 max-w-xl text-ink-soft">{tagline}</p>
+          {category && <p className="mt-3 max-w-xl text-ink-soft">{tagline}</p>}
         </div>
       </section>
 

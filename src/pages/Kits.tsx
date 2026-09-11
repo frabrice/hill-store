@@ -124,9 +124,9 @@ export function Kits() {
   }, [setAccent]);
 
   useSeo({
-    title: 'Curated Baby Kits | Hill Store',
+    title: 'Curated Kits | Hill Store',
     description:
-      'Ready-made baby kits from Hill Store — coming-home bags, first-bath sets and more, bundled and delivered across Kigali.',
+      'Ready-made kits from Hill Store — bundled essentials for the kitchen, home and baby, delivered across Kigali.',
     path: '/kits',
   });
 

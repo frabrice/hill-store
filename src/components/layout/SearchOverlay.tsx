@@ -9,13 +9,13 @@ import { useUI } from '@/store/ui';
 import { rwfFull } from '@/lib/format';
 import type { ColorKey } from '@/lib/services/types';
 
-const SUGGESTIONS = ['Preemie', 'Swaddle', 'Bottle', 'Thermometer', 'Kangaroo'];
+const SUGGESTIONS = ['Cookware', 'Cleaning bins', 'Bedding', 'Baby bottles', 'Towels'];
 
 /**
  * Command-palette search.
  *
  * Opens on Ctrl/Cmd-K or from the header. Results are instant and show a
- * thumbnail and price, so a parent can recognise what they want without
+ * thumbnail and price, so a shopper can recognise what they want without
  * loading a results page first.
  */
 export function SearchOverlay() {
@@ -72,7 +72,7 @@ export function SearchOverlay() {
                 value={query}
                 onValueChange={setQuery}
                 autoFocus
-                placeholder="Search for bottles, swaddles, preemie sizes…"
+                placeholder="Search for cookware, bedding, baby essentials…"
                 className="h-14 flex-1 bg-transparent text-base outline-none placeholder:text-ink-faint"
               />
               <kbd className="hidden rounded bg-surface-sunk px-1.5 py-0.5 text-[0.65rem] font-semibold text-ink-faint sm:block">

@@ -11,8 +11,8 @@ import { ACCENTS } from '@/lib/theme';
 const VALUES: { icon: typeof HeartHandshake; title: string; body: string; hue: ColorKey }[] = [
   {
     icon: Ruler,
-    title: 'Sizes that actually fit',
-    body: 'Preemie and newborn sizing gets a first-class place in every category, not a bolted-on filter.',
+    title: 'Sizes and fits that make sense',
+    body: 'From preemie sizing to family-size cookware, every product is chosen to genuinely fit its purpose — not a one-size-fits-all afterthought.',
     hue: 'pink',
   },
   {
