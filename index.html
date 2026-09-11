@@ -16,6 +16,17 @@
     />
     <link rel="canonical" href="https://www.hill-store.com/" />
 
+    <!-- Starts fetching the hero badge (the homepage's LCP image) before
+         React even mounts — same srcset/sizes as the <img> in HeroScene.tsx
+         so the browser caches the exact candidate it'll actually render. -->
+    <link
+      rel="preload"
+      as="image"
+      href="/brand/hero-baby-700.webp"
+      imagesrcset="/brand/hero-baby-700.webp 700w, /brand/hero-baby-1100.webp 1100w"
+      imagesizes="(max-width: 1024px) 80vw, 32rem"
+    />
+
     <!-- Static fallback for crawlers that don't execute JavaScript (some
          social-preview bots). Every route also sets its own version of these
          at runtime via src/hooks/useSeo.ts, which is what Google's crawler

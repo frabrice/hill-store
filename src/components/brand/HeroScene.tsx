@@ -113,6 +113,8 @@ export function HeroScene() {
           width={1100}
           height={1100}
           alt="Hill Store — dining items and baby essentials, everything for a happier home"
+          fetchPriority="high"
+          decoding="async"
           onError={() => setFailed(true)}
           className="mx-auto h-full w-full object-contain"
         />

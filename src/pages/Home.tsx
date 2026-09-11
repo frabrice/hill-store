@@ -119,7 +119,7 @@ const HERO_AUTOPLAY_MS = 6000;
 /** How long a manual dot click holds off the next auto-advance. */
 const HERO_AUTOPLAY_RESUME_DELAY_MS = 4000;
 /** 1 original slide + however many `HeroProductSlide`s follow it. */
-const HERO_SLIDE_COUNT = 4;
+const HERO_SLIDE_COUNT = 7;
 
 function ProductSlide({ slide }: { slide: HeroProductSlide }) {
   const accent = ACCENTS[slide.hue];
@@ -143,6 +143,7 @@ function ProductSlide({ slide }: { slide: HeroProductSlide }) {
           srcSet={`${slide.image700} 700w, ${slide.image1200} 1200w`}
           sizes="(max-width: 1024px) 100vw, 40rem"
           alt={slide.imageAlt}
+          decoding="async"
           className="h-full w-full object-cover"
         />
       </motion.div>
@@ -565,7 +566,56 @@ export function Home() {
       ctaLabel: 'Shop toys & learning',
       ctaTo: '/shop/toys',
     },
+    {
+      eyebrow: 'Kitchen & dining',
+      title: 'Everyday cookware built to last',
+      body: 'From family-size pots to the small saucepan you reach for daily — durable kitchenware and dining essentials for the way you actually cook.',
+      image700: '/brand/slides/slide-5-700.webp',
+      image1200: '/brand/slides/slide-5-1200.webp',
+      imageAlt: 'A nesting set of stainless steel cookware pots with lids on a kitchen counter',
+      hue: 'coral',
+      ctaLabel: 'Shop dining items',
+      ctaTo: '/shop/dining-items',
+    },
+    {
+      eyebrow: 'Home & cleaning',
+      title: 'Tidy up made simple',
+      body: 'Sturdy bins, baskets and laundry essentials that keep every room organised — practical colours, built for daily use.',
+      image700: '/brand/slides/slide-6-700.webp',
+      image1200: '/brand/slides/slide-6-1200.webp',
+      imageAlt: 'Colourful plastic laundry bins, basins and waste baskets',
+      hue: 'teal',
+      ctaLabel: 'Shop cleaning supplies',
+      ctaTo: '/shop/cleaning-supplies',
+    },
+    {
+      eyebrow: 'Bedroom & comfort',
+      title: 'A softer place to rest',
+      body: 'Bedding, towels and comfort essentials chosen for the whole family — quality you can feel from the very first night.',
+      image700: '/brand/slides/slide-7-700.webp',
+      image1200: '/brand/slides/slide-7-1200.webp',
+      imageAlt: 'A bed dressed with patterned bedding, folded towels and a canopy net',
+      hue: 'indigo',
+      ctaLabel: 'Shop bedroom & comfort',
+      ctaTo: '/shop/bedroom-comfort',
+    },
   ];
+
+  // Warms the browser's cache for the next slide's image while the current
+  // one is still showing, so autoplay never has to wait on a fresh fetch —
+  // matches the actual <img>'s srcset/sizes so the right candidate is cached.
+  useEffect(() => {
+    const nextIndex = (slideIndex + 1) % HERO_SLIDE_COUNT;
+    const nextSlide = heroProductSlides[nextIndex - 1];
+    if (!nextSlide) return;
+    const preload = new Image();
+    preload.srcset = `${nextSlide.image700} 700w, ${nextSlide.image1200} 1200w`;
+    preload.sizes = '(max-width: 1024px) 100vw, 40rem';
+    preload.src = nextSlide.image700;
+    // heroProductSlides is a fresh array every render but its content is
+    // static per index — only slideIndex should retrigger the preload.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slideIndex]);
 
   const { data: categories } = useCategories();
   const { data: kits } = useKits();
