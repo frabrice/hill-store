@@ -19,7 +19,6 @@ const COLUMNS = [
   {
     title: 'Learn',
     links: [
-      { to: '/learn', label: 'Guides & articles' },
       { to: '/about', label: 'Our story' },
       { to: '/faq', label: 'Frequently asked' },
       { to: '/contact', label: 'Contact us' },

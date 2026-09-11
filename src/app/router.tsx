@@ -5,7 +5,6 @@ import { Shop } from '@/pages/Shop';
 import { ProductDetail } from '@/pages/ProductDetail';
 import { Kits } from '@/pages/Kits';
 import { Checkout } from '@/pages/Checkout';
-import { Learn } from '@/pages/Learn';
 import { About } from '@/pages/About';
 import { Contact } from '@/pages/Contact';
 import { Faq } from '@/pages/Faq';
@@ -43,9 +42,6 @@ export const router = createBrowserRouter([
       { path: 'shop/:categorySlug', element: <Shop /> },
       { path: 'product/:slug', element: <ProductDetail /> },
       { path: 'kits', element: <Kits /> },
-
-      { path: 'learn', element: <Learn /> },
-      { path: 'learn/:slug', element: <Learn /> },
 
       { path: 'about', element: <About /> },
       { path: 'contact', element: <Contact /> },

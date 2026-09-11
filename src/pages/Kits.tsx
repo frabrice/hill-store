@@ -139,10 +139,6 @@ export function Kits() {
           </p>
           <h1 className="mt-1 font-display text-display-lg font-bold">Curated kits</h1>
           <RingDivider className="mt-3" />
-          <p className="mt-3 max-w-xl text-ink-soft">
-            Everything for a moment sorted at once, chosen so nothing is missing and priced
-            better than buying each piece alone.
-          </p>
         </div>
       </section>
 

@@ -4,7 +4,6 @@ import { motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowRight,
   BadgeCheck,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
   Clock,
@@ -16,13 +15,12 @@ import { HeroScene } from '@/components/brand/HeroScene';
 import { PlushButton } from '@/components/ui/PlushButton';
 import { StageSelector } from '@/components/shop/StageSelector';
 import { ProductCard } from '@/components/shop/ProductCard';
-import { useArticles, useCategories, useKits, useProducts } from '@/hooks/useCatalog';
+import { useCategories, useKits, useProducts } from '@/hooks/useCatalog';
 import { useCategoryColors } from '@/hooks/useCategoryColors';
 import { useSeo, SITE_NAME, SITE_URL } from '@/hooks/useSeo';
 import { resolveIcon } from '@/lib/icons';
 import { rwfFull } from '@/lib/format';
 import { ACCENTS } from '@/lib/theme';
-import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { ProductImage } from '@/components/shop/ProductImage';
 import type { Category, ColorKey, Product } from '@/lib/services/types';
@@ -119,7 +117,7 @@ const HERO_AUTOPLAY_MS = 3500;
 /** How long a manual dot click holds off the next auto-advance. */
 const HERO_AUTOPLAY_RESUME_DELAY_MS = 2500;
 /** 1 original slide + however many `HeroProductSlide`s follow it. */
-const HERO_SLIDE_COUNT = 7;
+const HERO_SLIDE_COUNT = 4;
 
 function ProductSlide({ slide }: { slide: HeroProductSlide }) {
   const accent = ACCENTS[slide.hue];
@@ -510,11 +508,6 @@ export function Home() {
   const heroPausedUntilRef = useRef(0);
   const featuredRef = useRef<HTMLElement>(null);
 
-  const goToToddlerStage = () => {
-    setStage('toddler');
-    featuredRef.current?.scrollIntoView({ behavior: heroReduced ? 'auto' : 'smooth', block: 'start' });
-  };
-
   // Same slow-drift-with-hover-pause shape as the category shelf below —
   // advances on its own, stops the instant a visitor's pointer is on it,
   // and never starts at all if the OS asked for reduced motion.
@@ -534,48 +527,15 @@ export function Home() {
 
   const heroProductSlides: HeroProductSlide[] = [
     {
-      eyebrow: 'Care essentials',
-      title: 'Everything for gentle daily care',
-      body: 'Nail care, grooming, and the tiny tools every new parent reaches for — gathered in one place, safe and simple to use from day one.',
-      image700: '/brand/slides/slide-2-700.webp',
-      image1200: '/brand/slides/slide-2-1200.webp',
-      imageAlt: 'A complete baby care kit with grooming and hygiene essentials',
-      hue: 'mint',
-      ctaLabel: 'Shop bathing & care',
-      ctaTo: '/shop/bathing',
-    },
-    {
-      eyebrow: 'As they grow',
-      title: 'Ready for every stage ahead',
-      body: 'From swaddles to first steps and beyond — Hill Store grows with your little one, stage by stage.',
-      image700: '/brand/slides/slide-3-700.webp',
-      image1200: '/brand/slides/slide-3-1200.webp',
-      imageAlt: "A child's desk and chair set in a cosy nursery",
-      hue: 'lavender',
-      ctaLabel: 'Shop the toddler stage',
-      onCta: goToToddlerStage,
-    },
-    {
-      eyebrow: 'Play & discovery',
-      title: 'Toys that grow curious minds',
-      body: 'Bright, tactile, and built for little hands — the toys and activity pieces that turn tummy time into playtime.',
+      eyebrow: 'Hill Store Rwanda',
+      title: 'One store, everything you need',
+      body: 'Kitchenware, cleaning essentials, baby products and more — all in one place, delivered across Kigali.',
       image700: '/brand/slides/slide-4-700.webp',
       image1200: '/brand/slides/slide-4-1200.webp',
-      imageAlt: 'A baby walker and activity centre in a bright playroom',
+      imageAlt: 'Hill Store Rwanda — kitchenware, cleaning supplies and baby essentials',
       hue: 'sunny',
-      ctaLabel: 'Shop toys & learning',
-      ctaTo: '/shop/toys',
-    },
-    {
-      eyebrow: 'Kitchen & dining',
-      title: 'Everyday cookware built to last',
-      body: 'From family-size pots to the small saucepan you reach for daily — durable kitchenware and dining essentials for the way you actually cook.',
-      image700: '/brand/slides/slide-5-700.webp',
-      image1200: '/brand/slides/slide-5-1200.webp',
-      imageAlt: 'A nesting set of stainless steel cookware pots with lids on a kitchen counter',
-      hue: 'coral',
-      ctaLabel: 'Shop dining items',
-      ctaTo: '/shop/dining-items',
+      ctaLabel: 'Shop all products',
+      ctaTo: '/shop',
     },
     {
       eyebrow: 'Home & cleaning',
@@ -619,7 +579,6 @@ export function Home() {
 
   const { data: categories } = useCategories();
   const { data: kits } = useKits();
-  const { data: articles } = useArticles();
   const { data: featured } = useProducts({
     stageSlug: stage ?? undefined,
     sort: 'featured',
@@ -668,7 +627,12 @@ export function Home() {
       <section className="relative overflow-hidden">
         <RingArc className="opacity-70" />
 
-        <div className="relative mx-auto max-w-7xl px-4 pb-14 pt-10 sm:px-6 sm:pt-16">
+        <div
+          className={cn(
+            'relative mx-auto max-w-7xl px-4 pb-14 sm:px-6',
+            slideIndex === 0 ? 'pt-4 sm:pt-8' : 'pt-10 sm:pt-16',
+          )}
+        >
           <div
             onMouseEnter={() => {
               heroHoveredRef.current = true;
@@ -919,69 +883,6 @@ export function Home() {
         </div>
       </section>
 
-      {/* -------------------------------------------------------- learn */}
-      <section className="bloom-wash relative overflow-hidden px-4 py-16 sm:px-6">
-        <div className="mx-auto max-w-7xl">
-        <SectionHeading
-          eyebrow="Learn"
-          title="Guidance for the early days"
-          action={{ to: '/learn', label: 'All guides' }}
-          hue="sky"
-        />
-
-        <div className="grid gap-4 md:grid-cols-3">
-          {articles?.slice(0, 3).map((article, i) => {
-            const accent = ACCENTS[article.colorKey];
-            return (
-              <motion.div
-                key={article.slug}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-60px' }}
-                transition={{ duration: 0.5, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                style={{
-                  ['--accent' as string]: accent.surface,
-                  ['--accent-ink' as string]: accent.ink,
-                }}
-              >
-                <Link
-                  to={`/learn/${article.slug}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-3xl bg-surface shadow-plush transition-all duration-300 ease-plush hover:-translate-y-1.5 hover:shadow-plush-lg"
-                >
-                  {/* Decorative header band in the article's own colour. */}
-                  <div className="relative h-32 overflow-hidden bg-[hsl(var(--accent)/0.3)]">
-                    <div className="absolute -right-6 -top-8 h-32 w-32 rounded-full bg-surface/40" />
-                    <div className="absolute -bottom-10 left-6 h-24 w-24 rounded-full bg-surface/30" />
-                    <BookOpen
-                      className="absolute right-5 top-1/2 h-16 w-16 -translate-y-1/2 text-[hsl(var(--accent-ink))] opacity-40"
-                      strokeWidth={1.2}
-                      aria-hidden
-                    />
-                  </div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <div className="flex items-center gap-2 text-xs text-ink-faint">
-                      <span className="rounded-full bg-[hsl(var(--accent)/0.25)] px-2.5 py-0.5 font-semibold text-[hsl(var(--accent-ink))]">
-                        {article.topic}
-                      </span>
-                      <span>{article.readMinutes} min read</span>
-                    </div>
-                    <h3 className="mt-2.5 font-display text-lg font-bold leading-snug">
-                      {article.title}
-                    </h3>
-                    <p className="mt-1.5 flex-1 text-sm leading-relaxed text-ink-soft">
-                      {article.excerpt}
-                    </p>
-                    <span className="mt-3 text-xs text-ink-faint">
-                      {formatDate(article.publishedAt)}
-                    </span>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
-        </div>
-      </section>
     </>
   );
 }

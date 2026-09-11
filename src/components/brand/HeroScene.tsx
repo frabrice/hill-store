@@ -112,7 +112,7 @@ export function HeroScene() {
           sizes="(max-width: 1024px) 80vw, 32rem"
           width={1100}
           height={1100}
-          alt="Hill Store — dining items and baby essentials, everything for a happier home"
+          alt="Hill Store Rwanda — everything your home needs"
           fetchPriority="high"
           decoding="async"
           onError={() => setFailed(true)}

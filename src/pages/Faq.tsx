@@ -31,12 +31,6 @@ const FAQS: { question: string; answer: string; topic: string }[] = [
   },
   {
     topic: 'Sizing',
-    question: 'My baby was born early — what size should I buy?',
-    answer:
-      'Start with our Preemie stage filter, or check the weight range in each product’s Size & weight details — preemie sizing is based on weight, not age, since that’s what actually determines fit.',
-  },
-  {
-    topic: 'Sizing',
     question: 'What if the size is wrong when it arrives?',
     answer:
       'Check it at the door — if the size isn’t right, just hand it straight back to the delivery rider on the spot. We offer a 100% refund, no need to arrange a separate return. See our Refunds & returns policy for the full details.',
@@ -46,12 +40,6 @@ const FAQS: { question: string; answer: string; topic: string }[] = [
     question: 'Can I change or cancel an order after placing it?',
     answer:
       'Message us on WhatsApp as soon as you can — if it hasn’t left for delivery yet, we can usually adjust or cancel it.',
-  },
-  {
-    topic: 'Orders',
-    question: 'Do you sell genuine products?',
-    answer:
-      'Always. Everything is sourced directly from brands and distributors we can vouch for — nothing counterfeit, ever.',
   },
 ];
 

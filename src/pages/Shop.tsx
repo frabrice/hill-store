@@ -147,11 +147,13 @@ export function Shop() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <StageSelector value={stage} onChange={setStage} />
-            </div>
+            {categorySlug === 'baby-essentials' && (
+              <div className="min-w-0 flex-1">
+                <StageSelector value={stage} onChange={setStage} />
+              </div>
+            )}
 
-            <label className="flex shrink-0 items-center gap-2 text-sm">
+            <label className="flex shrink-0 items-center gap-2 text-sm ml-auto">
               <SlidersHorizontal
                 className="h-4 w-4 text-ink-faint"
                 aria-hidden

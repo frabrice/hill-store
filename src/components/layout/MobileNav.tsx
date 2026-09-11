@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { BookOpen, Home, Search, ShoppingBag, Store } from 'lucide-react';
+import { Home, Search, ShoppingBag, Store } from 'lucide-react';
 import { useCart, selectCount } from '@/store/cart';
 import { useUI } from '@/store/ui';
 import { cn } from '@/lib/utils';
@@ -15,7 +15,6 @@ import { cn } from '@/lib/utils';
 const TABS = [
   { to: '/', label: 'Home', icon: Home, end: true },
   { to: '/shop', label: 'Shop', icon: Store, end: false },
-  { to: '/learn', label: 'Learn', icon: BookOpen, end: false },
 ];
 
 export function MobileNav() {

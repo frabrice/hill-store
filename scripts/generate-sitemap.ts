@@ -26,7 +26,6 @@ const STATIC_PAGES: UrlEntry[] = [
   { loc: '/', changefreq: 'daily', priority: '1.0' },
   { loc: '/shop', changefreq: 'daily', priority: '0.9' },
   { loc: '/kits', changefreq: 'weekly', priority: '0.7' },
-  { loc: '/learn', changefreq: 'weekly', priority: '0.6' },
   { loc: '/about', changefreq: 'monthly', priority: '0.4' },
   { loc: '/contact', changefreq: 'monthly', priority: '0.4' },
   { loc: '/faq', changefreq: 'monthly', priority: '0.5' },
@@ -55,10 +54,9 @@ async function fetchDynamicEntries(): Promise<UrlEntry[]> {
   const supabase = createClient(url, key);
   const entries: UrlEntry[] = [];
 
-  const [categories, products, articles] = await Promise.all([
+  const [categories, products] = await Promise.all([
     supabase.from('categories').select('slug'),
     supabase.from('products').select('slug, created_at'),
-    supabase.from('articles').select('slug, published_at'),
   ]);
 
   if (categories.error) console.warn('generate-sitemap: categories fetch failed —', categories.error.message);
@@ -68,11 +66,6 @@ async function fetchDynamicEntries(): Promise<UrlEntry[]> {
   else
     for (const p of products.data)
       entries.push({ loc: `/product/${p.slug}`, lastmod: toDateOnly(p.created_at), changefreq: 'weekly', priority: '0.7' });
-
-  if (articles.error) console.warn('generate-sitemap: articles fetch failed —', articles.error.message);
-  else
-    for (const a of articles.data)
-      entries.push({ loc: `/learn/${a.slug}`, lastmod: toDateOnly(a.published_at), changefreq: 'monthly', priority: '0.5' });
 
   return entries;
 }

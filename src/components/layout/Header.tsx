@@ -17,7 +17,6 @@ const FALLBACK_FREE_DELIVERY_THRESHOLD = 50000;
 const NAV = [
   { to: '/shop', label: 'Shop' },
   { to: '/kits', label: 'Kits' },
-  { to: '/learn', label: 'Learn' },
   { to: '/about', label: 'About' },
 ];
 
